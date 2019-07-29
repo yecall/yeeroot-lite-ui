@@ -1,8 +1,5 @@
 <template>
   <section>
-    <!-- 复制内容模块的用法 -->
-    <!-- <div v-clipboard="value
-  "v-clipboard:success="copysuccess" v-clipboard:error="copyerror"></div> -->
     <section class="headertop">
       <header class="header center">
         <div class="left">
@@ -19,7 +16,7 @@
       </header>
     </section>
     <section class="content">
-      <ul class="outer center">
+      <ul class="outer">
         <li v-for="(item,index) in data" class="item" :key="index">
           <div class="part top">
             <section class="left bold">
@@ -100,14 +97,20 @@
       </div>
       <div class="information">
         <p class="title">
-          Address
+          <span class="innertitle">
+            Address
+          </span>
         </p>
         <p class="address input">
           <input class="input" type="text" v-model="privateaddress">
         </p>
       </div>
       <p class="production"> Create the wallet address to test the function </p>
-      <p class="balance">Balance {{ balance}} YEE</p>
+      <p class="balance">
+        <span class="result">
+          Balance {{ balance}} YEE
+        </span>
+      </p>
       <button class="ceratedone" @click="check">Check</button>
     </section>
     <section class="creat center transfer">
@@ -115,12 +118,20 @@
         Transfer
       </div>
       <div class=" information">
-        <p class="title">Private Key</p>
+        <p class="title">
+          <span class="innertitle">
+            Private Key
+          </span>
+        </p>
         <input class="input" type="text" v-model="privatekey">
         <p class="production">Your wallet private key</p>
       </div>
       <div class=" information">
-        <p class="title">To Address</p>
+        <p class="title">
+          <span class="innertitle">
+            To Address
+          </span>
+        </p>
         <input class="input" type="text" v-model="toaddress">
         <p class="production">The address which your will tranfer YEE to</p>
       </div>
@@ -129,10 +140,12 @@
         <input class="input" type="text" v-model="amount">
         <p class="production">Token amount that your want it transfer</p>
       </div>
-      <p class="balance result">
-        {{result}}
+      <p class="balance ">
+        <span class="result" :class="{success:true}">
+          {{result}}
+        </span>
       </p>
-      <button class="ceratedone" @click="check">Check</button>
+      <button class="ceratedone" @click="transfer">Transfer</button>
     </section>
     <section class="bottominfo">
       Token amount that you want it transfer
@@ -191,8 +204,7 @@ export default {
       result: 'success !',
       privatekey: 'asdfasd',
       toaddress: '111111',
-      amount: '100000'
-
+      amount: '100000',
     };
   },
   computed: {},
@@ -226,6 +238,11 @@ export default {
     },
     check() {
       console.log('check')
+    },
+    transfer() {
+      console.log(this.privatekey)
+      console.log(this.toaddress)
+      console.log(this.amount)
     }
   }
 }
@@ -285,9 +302,10 @@ export default {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
 
     .item {
+      margin 0 25px
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -301,7 +319,7 @@ export default {
         padding: 15px 20px;
         width: 100%;
         display: flex;
-        color: #836969;
+        color: #606266;
         flex-direction: column;
         align-items: center;
         justify-content: space-between;
@@ -346,7 +364,9 @@ export default {
 
 .creat {
   padding-top: 120px;
-
+  &.balance,&.transfer{
+    padding-top:30px
+  }
   .name {
     font-size: 20px;
     color: #444;
@@ -376,6 +396,14 @@ export default {
       font-size: 18px;
       color: #2e394b;
       font-weight: 600;
+      .innertitle{
+        display inline-block
+        padding: 0 10px
+        position relative
+        top:12px;
+        left 10px
+        background #fff
+      }
     }
 
     .address {
@@ -406,16 +434,23 @@ export default {
   }
 
   .balance {
-    padding-bottom: 10px;
-    font-weight: 600;
-    text-decoration: underline;
+    padding-bottom: 15px;
 
-    &.success {
-      color: green;
-    }
+    .result {
+      padding-bottom: 5px;
+      font-weight: 600;
+      width: 200px;
+      border-bottom: 1px solid #333;
 
-    &.error {
-      color: red;
+      &.success {
+        color: green;
+        border-bottom: 1px solid green;
+      }
+
+      &.error {
+        color: red;
+        border-bottom: 1px solid red;
+      }
     }
   }
 }
