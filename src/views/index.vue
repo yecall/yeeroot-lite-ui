@@ -16,14 +16,15 @@
       </header>
     </section>
     <section class="content">
-      <ul class="outer">
+      <ul class="outer center">
         <li v-for="(item,index) in data" class="item" :key="index">
           <div class="part top">
-            <section class="left bold">
+            <section class="left bold shard">
               SHARD
             </section>
             <section class="right">#
-              <span class="bold">{{index+1}}</span> BLOCKS</section>
+              <span class="bold">{{index+1}}</span>
+            </section>
           </div>
           <div class="part line">
             <div class="up">
@@ -34,7 +35,7 @@
             <div class="bottom">
               <span>
                 HASH</span>
-              <span class="hash">{{item.hash1}}</span>
+              <span class="hash">{{item.hash1?item.hash1.slice(0,4)+'****'+item.hash1.slice(-4):''}}</span>
             </div>
           </div>
           <div class="part line">
@@ -46,7 +47,7 @@
             <div class="bottom">
               <span>
                 HASH</span>
-              <span class="hash">{{item.hash2}}</span>
+              <span class="hash">{{item.hash2?item.hash2.slice(0,4)+'****'+item.hash2.slice(-4):''}}</span>
             </div>
           </div>
           <div class="part">
@@ -58,7 +59,7 @@
             <div class="bottom">
               <span>
                 HASH</span>
-              <span class="hash">{{item.hash3}}</span>
+              <span class="hash">{{item.hash3?item.hash3.slice(0,4)+'****'+item.hash3.slice(-4):''}}</span>
             </div>
           </div>
         </li>
@@ -136,7 +137,11 @@
         <p class="production">The address which your will tranfer YEE to</p>
       </div>
       <div class=" information">
-        <p class="title">Amount</p>
+        <p class="title">
+          <span class="innertitle">
+             Amount
+          </span>
+          </p>
         <input class="input" type="text" v-model="amount">
         <p class="production">Token amount that your want it transfer</p>
       </div>
@@ -302,15 +307,15 @@ export default {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
 
     .item {
-      margin 0 25px
+      // margin: 0 25px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 240px;
-      height: 300px;
+      
+      width: 220px;
       background: #fff;
       box-sizing: border-box;
       box-shadow: 0px 2px 3px #e4e4e4;
@@ -333,14 +338,19 @@ export default {
           background: #f7f8f8;
 
           .bold {
+            font-size: 18px;
             font-weight: 600;
+
+            &.shard {
+              font-size: 14px;
+            }
           }
         }
 
         &.line {
           padding: 10px 0px;
           width: 80%;
-          border-bottom: 1px solid #aeb1b6;
+          border-bottom: 1px solid #e4e4e4;
           box-sizing: content-box;
         }
 
@@ -353,8 +363,13 @@ export default {
 
           .balance {
             font-size: 20px;
-            font-weight: 600;
+            font-weight: bolder;
             color: #444;
+          }
+
+          .hash {
+            font-size: 12px;
+            text-align base
           }
         }
       }
@@ -364,9 +379,11 @@ export default {
 
 .creat {
   padding-top: 120px;
-  &.balance,&.transfer{
-    padding-top:30px
+
+  &.balance, &.transfer {
+    padding-top: 30px;
   }
+
   .name {
     font-size: 20px;
     color: #444;
@@ -381,7 +398,7 @@ export default {
 
   .ceratedone {
     margin-bottom: 20px;
-    padding: 8px 25px;
+    padding: 8px 40px;
     color: #fff;
     font-weight: 600;
     background: #2e394b;
@@ -393,16 +410,17 @@ export default {
     padding: 5px 0;
 
     .title {
-      font-size: 18px;
+      font-size: 16px;
       color: #2e394b;
       font-weight: 600;
-      .innertitle{
-        display inline-block
-        padding: 0 10px
-        position relative
-        top:12px;
-        left 10px
-        background #fff
+
+      .innertitle {
+        display: inline-block;
+        padding: 0 10px;
+        position: relative;
+        top: 12px;
+        left: 10px;
+        background: #fff;
       }
     }
 
@@ -440,16 +458,16 @@ export default {
       padding-bottom: 5px;
       font-weight: 600;
       width: 200px;
-      border-bottom: 1px solid #333;
 
+      // border-bottom: 1px solid #333;
       &.success {
         color: green;
-        border-bottom: 1px solid green;
+        // border-bottom: 1px solid green;
       }
 
       &.error {
         color: red;
-        border-bottom: 1px solid red;
+        // border-bottom: 1px solid red;
       }
     }
   }
