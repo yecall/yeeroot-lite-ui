@@ -132,7 +132,26 @@ const api = {
                 console.log('call:', call)
                 cb(call)
             })
+        },
+        composeTransaction(sender, secret, call){
+
+            return new Promise((resolve, reject) => {
+
+                let shardNum = api.utils.getShardNum(ss58Encode(sender))
+                console.log(shardNum)
+
+                api.rpcCall('chain_getHead', [shardNum, 0]).then((res) => {
+                    let hash = res.data.result
+                    console.log(hash)
+
+                }).catch((res)=>{
+                    reject(res)
+                })
+
+            })
+
         }
+
     }
 }
 

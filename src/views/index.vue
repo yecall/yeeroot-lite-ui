@@ -332,13 +332,16 @@
                     return
                 }
 
+                let senderBytes = ss58Decode(that.sendAddress)
                 let destBytes = ss58Decode(that.dest)
+                let secret = hexToBytes(that.sendPrivateKey)
+                console.log('destBytes:', destBytes)
                 api.utils.runInBalancesTransferCall(
-                    that.destBytes,
+                    destBytes,
                     that.amount,
                     calls,
                     (call) => {
-
+                        api.utils.composeTransaction(senderBytes, secret, call)
                     }
                 )
             }
