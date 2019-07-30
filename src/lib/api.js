@@ -1,5 +1,9 @@
 import conf from '@/config'
 import axios from 'axios'
+import {
+    calls, runtime, chain, system, runtimeUp, ss58Decode, ss58Encode, pretty,
+    addressBook, secretStore, metadata, nodeService, bytesToHex, hexToBytes, AccountId
+} from 'oo7-substrate';
 
 const api = {
     id: 0,
@@ -53,20 +57,20 @@ const api = {
         return api.request('post', '/', {'jsonrpc': '2.0', 'id': api.id++, 'method': method, 'params': params})
     },
     utils: {
-        getDisplayHash(hash){
-            return hash.substr(0,8) + '...' + hash.substr(hash.length-8, hash.length)
+        getDisplayHash(hash) {
+            return hash.substr(0, 8) + '...' + hash.substr(hash.length - 8, hash.length)
         },
         getRecentBlocks(shardNum) {
             return new Promise((resolve, reject) => {
-                api.rpcCall('chain_getHeader', [/*shardNum,*/ null]).then(
+                api.rpcCall('chain_getHeader', [shardNum, null]).then(
                     (res) => {
                         let number = eval(res.data.result.number)
-                        console.log(number)
+                        //console.log(number)
 
                         let ps = [
-                            api.rpcCall('chain_getHead', [/*shardNum,*/ number]),
-                            api.rpcCall('chain_getHead', [/*shardNum,*/ number - 1]),
-                            api.rpcCall('chain_getHead', [/*shardNum,*/ number - 2])
+                            api.rpcCall('chain_getHead', [shardNum, number]),
+                            api.rpcCall('chain_getHead', [shardNum, number - 1]),
+                            api.rpcCall('chain_getHead', [shardNum, number - 2])
                         ]
 
                         Promise.all(ps).then(
@@ -74,8 +78,8 @@ const api = {
                                 console.log(res)
                                 let ret = []
                                 ret[0] = {number: number, hash: res[0].data.result}
-                                ret[1] = {number: number-1, hash: res[1].data.result}
-                                ret[2] = {number: number-2, hash: res[2].data.result}
+                                ret[1] = {number: number - 1, hash: res[1].data.result}
+                                ret[2] = {number: number - 2, hash: res[2].data.result}
                                 resolve(ret)
                             }
                         ).catch(
@@ -90,7 +94,19 @@ const api = {
                     }
                 )
             })
-        }
+        },
+        generateSrKeyPair() {
+            let mnemonic = secretStore().generateMnemonic()
+            // let seed = srKeypairFromUri("//Alice")
+            let seed = srKeypairFromUri(mnemonic)
+            return seed
+        },
+        srKeypairToPublic(pair) {
+            return new Uint8Array(pair.slice(64, 96))
+        },
+        srKeypairToSecret(pair) {
+            return new Uint8Array(pair.slice(0, 64))
+        },
     }
 }
 

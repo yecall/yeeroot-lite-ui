@@ -3,15 +3,17 @@
         <section class="headertop">
             <header class="header center">
                 <div class="left">
-                    <img src="../assets/img/logotop.png" alt="">
+                    <img src="../assets/img/logo.png" alt="">
                     <span>
-            YEECO TESTNET
+            YeeCo POCNET
           </span>
                 </div>
                 <div class="right">
-                    <a href="javascript:void(0)" v-for="(item,index) in link" :key="index"
-                       :class="{last:index===link.length-1?true:false}">
-                        {{item}}
+                    <a href="https://www.yeeco.io/">
+                        YeeCo Official
+                    </a>
+                    <a href="https://github.com/yeeco/yeeroot/issues/new" class="last">
+                        Feedback
                     </a>
                 </div>
             </header>
@@ -77,8 +79,8 @@
                     Address
                 </p>
                 <p class="address">
-                    <span>{{hash}}</span>
-                    <span v-clipboard="hash
+                    <span>{{address}}</span>
+                    <span v-clipboard="address
   " v-clipboard:success="copysuccess" v-clipboard:error="copyerror">Copy</span>
                 </p>
             </div>
@@ -87,15 +89,15 @@
                     Private Key
                 </p>
                 <p class="address">
-                    <span>{{hash}}</span>
-                    <span v-clipboard="hash
+                    <span>{{privateKey}}</span>
+                    <span v-clipboard="privateKey
   " v-clipboard:success="copysuccess" v-clipboard:error="copyerror">Copy</span>
                 </p>
             </div>
         </section>
         <section class="creat center balance">
             <div class="name">
-                Token Balande
+                Check Balance
             </div>
             <div class="information">
                 <p class="title">
@@ -104,13 +106,14 @@
           </span>
                 </p>
                 <p class="address input">
-                    <input class="input" type="text" v-model="privateaddress">
+                    <input class="input" type="text" v-model="queryAddress">
                 </p>
             </div>
             <p class="production"> Create the wallet address to test the function </p>
             <p class="balance">
-        <span class="result">
-          Balance {{ balance}} YEE
+        <span class="result" v-if="balance">
+          Balance {{ balance}} co
+            <p>(1 co is 0.00000001 YEE)</p>
         </span>
             </p>
             <button class="ceratedone" @click="check">Check</button>
@@ -125,7 +128,7 @@
             Private Key
           </span>
                 </p>
-                <input class="input" type="text" v-model="privatekey">
+                <input class="input" type="text" v-model="sendPrivateKey">
                 <p class="production">Your wallet private key</p>
             </div>
             <div class=" information">
@@ -134,12 +137,12 @@
             To Address
           </span>
                 </p>
-                <input class="input" type="text" v-model="toaddress">
+                <input class="input" type="text" v-model="dest">
                 <p class="production">The address which your will tranfer YEE to</p>
             </div>
             <div class=" information">
                 <p class="title">Amount</p>
-                <input class="input" type="text" v-model="amount">
+                <input class="input" type="text" v-model="value">
                 <p class="production">Token amount that your want it transfer</p>
             </div>
             <p class="balance ">
@@ -178,7 +181,7 @@
                         hash2: '',
                     },
                     {
-                        number0: '1',
+                        number0: '',
                         number1: '',
                         number2: '',
                         hash0: '',
@@ -202,13 +205,14 @@
                         hash2: '',
                     }
                 ],
-                hash: 'asdfasdfasdfasdfasdfasdfasdf',
-                privateaddress: '',
-                balance: '100,100',
+                address: '',
+                privateKey: '',
+                queryAddress: '',
+                balance: '',
                 result: 'success !',
-                privatekey: 'asdfasd',
-                toaddress: '111111',
-                amount: '100000',
+                sendPrivateKey: '',
+                dest: '111111',
+                value: '100000',
             };
         },
         computed: {},
@@ -218,48 +222,32 @@
         methods: {
             repeat() {
                 let that = this
-                that.refreshRecentBlocks(1)
-                setInterval(() => {
-                    that.refreshRecentBlocks(1)
-                }, 3000)
+                for (let i = 0; i < 4; i++) {
+                    that.refreshRecentBlocks(i)
+                    setInterval(() => {
+                        that.refreshRecentBlocks(i)
+                    }, 20000)
+                }
             },
             refreshRecentBlocks(shardNum) {
                 let that = this
                 api.utils.getRecentBlocks(shardNum).then(
                     (res) => {
                         console.log('res:', res)
-                        that.blocks = [{},{},{},{}]
-
-                        oriBlocks[shardNum] = {
+                        that.blocks.splice(shardNum, 1, {
                             number0: res[0]['number'],
                             number1: res[1]['number'],
                             number2: res[2]['number'],
                             hash0: api.utils.getDisplayHash(res[0]['hash']),
                             hash1: api.utils.getDisplayHash(res[1]['hash']),
                             hash2: api.utils.getDisplayHash(res[2]['hash']),
-                        }
-                        that.blocks = oriBlocks
-                        console.log(that.blocks)
+                        })
+                        //console.log('blocks: ', that.blocks)
                     }
                 ).catch(
                     (res) => {
                     }
                 )
-            },
-            getdata() {
-                let ua = typeof window === 'undefined' ? '' : navigator.userAgent.toLowerCase();
-                axios.post(`/report/api/log/report/report?appid=${'appid'}&channel=${'channel'}`, {
-                    time: new Date().getTime(),
-                    event: 'donwlaod',
-                    data: {
-                        type: /mac os x/.test(ua) ? 'ios' : 'android',
-                        hid: this.hid
-                    }
-                }).then((res) => {
-                    console.log(res, '=====>report success')
-                }).catch(() => {
-                    this.$alert('report error')
-                })
             },
             copysuccess() {
                 this.$alert('success')
@@ -269,14 +257,26 @@
             },
             create() {
                 console.log('creat account')
+                let pair = api.utils.generateSrKeyPair()
+                this.address = ss58Encode(api.utils.srKeypairToPublic(pair))
+                this.privateKey = '0x'+ bytesToHex(api.utils.srKeypairToSecret(pair))
             },
             check() {
                 console.log('check')
+                let that = this
+                that.balance = ''
+                api.rpcCall('state_getBalance', [this.queryAddress]).then(
+                    (res) => {
+                        that.balance = eval(res.data.result)
+                        console.log(eval(res.data.result))
+                    }).catch(
+                    (res) => {
+                        console.log(res)
+                    }
+                )
             },
             transfer() {
-                console.log(this.privatekey)
-                console.log(this.toaddress)
-                console.log(this.amount)
+
             }
         }
     }
@@ -399,7 +399,7 @@
     .creat {
         padding-top: 120px;
         &.balance, &.transfer {
-            padding-top: 30px
+            padding-top: 80px
         }
         .name {
             font-size: 20px;
@@ -484,6 +484,10 @@
                 &.error {
                     color: red;
                     border-bottom: 1px solid red;
+                }
+
+                p{
+                    margin-top: 20px;
                 }
             }
         }
