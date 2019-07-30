@@ -72,7 +72,7 @@
             <div class="name">
                 Create Wallet
             </div>
-            <p class="production"> Create the wallet address to test the function </p>
+            <p class="production"> Create the wallet address </p>
             <button class="ceratedone" @click="create">Create</button>
             <div class="information">
                 <p class="title">
@@ -80,20 +80,21 @@
                 </p>
                 <p class="address">
                     <span>{{address}}</span>
-                    <span v-clipboard="address
-  " v-clipboard:success="copysuccess" v-clipboard:error="copyerror">Copy</span>
+                    <span class="copy" v-clipboard="address" v-clipboard:success="copysuccess"
+                          v-clipboard:error="copyerror">Copy</span>
                 </p>
             </div>
             <div class="information">
                 <p class="title">
                     Private Key
                 </p>
-                <p class="address">
-                    <span>{{privateKey}}</span>
-                    <span v-clipboard="privateKey
-  " v-clipboard:success="copysuccess" v-clipboard:error="copyerror">Copy</span>
+                <p class="address privatekey">
+                    <span class="privatekeytext">{{privateKey}}</span>
+                    <span class="copy" v-clipboard="privateKey" v-clipboard:success="copysuccess"
+                          v-clipboard:error="copyerror">Copy</span>
                 </p>
             </div>
+            <div>This page will not store your private key, please back up it by yourself for further use. </div>
         </section>
         <section class="creat center balance">
             <div class="name">
@@ -109,11 +110,10 @@
                     <input class="input" type="text" v-model="queryAddress">
                 </p>
             </div>
-            <p class="production"> Create the wallet address to test the function </p>
+            <p class="production"> Check the balance of the address ( 1 co is 0.00000001 YEE ) </p>
             <p class="balance">
-        <span class="result" v-if="balance">
-          Balance {{ balance}} co
-            <p>(1 co is 0.00000001 YEE)</p>
+        <span class="result" v-if="balance!==''">
+          Balance is {{ balance}} co , Nonce is {{nonce}}
             </span>
             </p>
             <button class="ceratedone" @click="check">Check</button>
@@ -147,7 +147,7 @@
           </span>
                 </p>
                 <input class="input" type="text" v-model="dest">
-                <p class="production">The address which your will transfer YEE to</p>
+                <p class="production">The address which your will transfer to</p>
             </div>
             <div class=" information">
                 <p class="title">
@@ -166,7 +166,7 @@
             <button class="ceratedone" @click="transfer">Transfer</button>
         </section>
         <section class="bottominfo">
-            Token amount that you want it transfer
+            &copy;2019 YeeCo
         </section>
     </section>
 </template>
@@ -222,19 +222,14 @@
                 address: '',
                 privateKey: '',
 
-                queryAddress: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
-                // queryAddress: '',
+                queryAddress: '',
                 balance: '',
+                nonce: '',
 
-
-                sendAddress: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
-                sendPrivateKey: '0x98319d4ff8a9508c4bb0cf0b5a78d760a0b2082c02775e6e82370816fedfff48925a225d97aa00682d6a59b95b18780c10d7032336e88f3442b42361f4a66011',
-                dest: '5EtYZwFsQR2Ex1abqYFsmTxpHWytPkphS1LDsrCJ2Gr6b695',
-                amount: '1000',
-                // sendAddress: '',
-                // sendPrivateKey: '',
-                // dest: '',
-                // amount: '',
+                sendAddress: '',
+                sendPrivateKey: '',
+                dest: '',
+                amount: '',
 
                 showResult: false,
                 result: '',
@@ -243,10 +238,18 @@
         },
         computed: {},
         created() {
+            //this.initDev()
             this.initRuntime()
             this.repeat()
         },
         methods: {
+            initDev(){
+                this.queryAddress = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'
+                this.sendAddress = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'
+                this.sendPrivateKey = '0x98319d4ff8a9508c4bb0cf0b5a78d760a0b2082c02775e6e82370816fedfff48925a225d97aa00682d6a59b95b18780c10d7032336e88f3442b42361f4a66011'
+                this.dest = '5EtYZwFsQR2Ex1abqYFsmTxpHWytPkphS1LDsrCJ2Gr6b695'
+                this.amount = 1000
+            },
             initRuntime() {
                 runtime.initRuntime()
                 window.calls = runtime.calls
@@ -282,10 +285,12 @@
                     }
                 )
             },
-            copysuccess() {
+            copysuccess({ value, event }) {
+                console.log(value)
                 this.$alert('success')
             },
-            copyerror() {
+            copyerror({ value, event }) {
+                console.log(value)
                 this.$alert('error')
             },
             create() {
@@ -298,15 +303,12 @@
                 console.log('check')
                 let that = this
                 that.balance = ''
-                api.rpcCall('state_getBalance', [this.queryAddress]).then(
+
+                Promise.all([api.rpcCall('state_getBalance', [that.queryAddress]), api.rpcCall('state_getNonce', [that.queryAddress])]).then(
                     (res) => {
-                        that.balance = eval(res.data.result)
-                        console.log(eval(res.data.result))
-                    }).catch(
-                    (res) => {
-                        console.log(res)
-                    }
-                )
+                        that.balance = eval(res[0].data.result)
+                        that.nonce = eval(res[1].data.result)
+                    })
             },
             transfer() {
                 let that = this
@@ -320,7 +322,7 @@
                     return
                 }
 
-                if (that.amount<1000){
+                if (that.amount < 1000) {
                     that.result = 'The amount should not be less than 1000'
                     that.showResult = true
                     return
@@ -351,11 +353,11 @@
                     that.amount,
                     calls,
                     (call) => {
-                        api.utils.composeTransaction(that.sendAddress, secret, call).then(()=>{
+                        api.utils.composeTransaction(that.sendAddress, secret, call).then(() => {
                             that.result = 'Transfer successfully'
                             that.showResult = true
                             that.success = true
-                        }).catch((res)=>{
+                        }).catch((res) => {
                             that.result = 'Something is wrong'
                             that.showResult = true
                             that.success = false
@@ -540,6 +542,17 @@
                     border: none;
                     background: #fff;
                     height: 100%;
+                }
+                &.privatekey {
+                    height 80px;
+                    .privatekeytext {
+                        width: 380px;
+                        word-wrap: break-word;
+                        word-break: normal;
+                    }
+                }
+                .copy {
+                    cursor: pointer;
                 }
             }
 
