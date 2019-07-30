@@ -107,8 +107,8 @@ const api = {
         },
         generateSrKeyPair() {
             let mnemonic = secretStore().generateMnemonic()
-            let seed = srKeypairFromUri("//Alice")
-            // let seed = srKeypairFromUri(mnemonic)
+            // let seed = srKeypairFromUri("//Alice")
+            let seed = srKeypairFromUri(mnemonic)
             return seed
         },
         srKeypairToPublic(pair) {
