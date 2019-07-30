@@ -143,55 +143,80 @@ const api = {
                 let shardNum = api.utils.getShardNum(sender)
                 console.log('shardNum:', shardNum)
 
-                api.rpcCall('chain_getHead', [shardNum, 0]).then((res) => {
-                    let eraHash = hexToBytes(res.data.result)
+                api.rpcCall('chain_getHeader', [shardNum, null]).then((res) => {
 
-                    console.log('eraHash: ', res.data.result, eraHash)
-                    let era = new TransactionEra
+                    let height = eval(res.data.result.number)
+                    console.log('height: ', height)
 
-                    api.rpcCall('state_getNonce', [sender]).then((res)=>{
-                        let index = eval(res.data.result)
-                        console.log('index: ', index)
+                    //
+                    let longevity = 64
+                    let l = Math.min(15, Math.max(1, Math.ceil(Math.log2(longevity)) - 1))
+                    let period = 2 << l
+                    let factor = Math.max(1, period >> 12)
+                    let Q = (n, d) => Math.floor(n / d) * d
+                    let eraNumber = Q(height, factor)
+                    let phase = eraNumber % period
+                    let era = new TransactionEra(period, phase)
+                    //
 
-                        let e = encode([
-                            index, call, era, eraHash
-                        ], [
-                            'Compact<Index>', 'Call', 'TransactionEra', 'Hash'
-                        ])
+                    api.rpcCall('chain_getHead', [shardNum, eraNumber]).then((res) => {
+                        let eraHash = hexToBytes(res.data.result)
 
-                        console.log('e: ', e)
+                        console.log('eraHash: ', res.data.result, eraHash)
 
-                        let signature = sign(senderBytes, secret, e)
-                        if (!verify(signature, e, senderBytes)) {
-                            console.warn(`Signature is INVALID!`)
-                            reject('sign error')
-                            return
-                        }
-                        console.log('signature: ', signature)
+                        api.rpcCall('state_getNonce', [sender]).then((res)=>{
+                            let index = eval(res.data.result)
+                            console.log('index: ', index)
 
-                        let signedData = encode(encode({
-                            _type: 'Transaction',
-                            version: 0x81,
-                            sender,
-                            signature,
-                            index,
-                            era,
-                            call
-                        }), 'Vec<u8>')
-                        let extrinsic = '0x'+bytesToHex(signedData)
-                        console.log("extrinsic:", extrinsic)
+                            let e = encode([
+                                index, call, era, eraHash
+                            ], [
+                                'Compact<Index>', 'Call', 'TransactionEra', 'Hash'
+                            ])
 
-                        api.rpcCall('author_submitExtrinsic', [extrinsic]).then(
-                            (res)=>{
-                                console.log("res:", res)
+                            console.log('e: ', e)
+
+                            let signature = sign(senderBytes, secret, e)
+                            if (!verify(signature, e, senderBytes)) {
+                                console.warn(`Signature is INVALID!`)
+                                reject('sign error')
+                                return
                             }
-                        ).catch((res)=>{
+                            console.log('signature: ', signature)
+
+                            let senderAccountId = new AccountId(senderBytes)
+                            console.log('senderAccountId: ', senderAccountId)
+
+                            let signedData = encode(encode({
+                                _type: 'Transaction',
+                                version: 0x81,
+                                sender: senderBytes,
+                                signature,
+                                index,
+                                era,
+                                call
+                            }), 'Vec<u8>')
+                            let extrinsic = '0x'+bytesToHex(signedData)
+                            console.log("extrinsic:", extrinsic)
+
+                            api.rpcCall('author_submitExtrinsic', [extrinsic]).then(
+                                (res)=>{
+                                    console.log("res:", res)
+                                    resolve(res)
+                                }
+                            ).catch((res)=>{
+                                console.log("err:", res)
+                                reject(res)
+                            })
+
+                        }).catch((res)=>{
                             reject(res)
                         })
 
                     }).catch((res)=>{
                         reject(res)
                     })
+
 
                 }).catch((res)=>{
                     reject(res)

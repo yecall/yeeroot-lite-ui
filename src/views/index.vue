@@ -222,19 +222,19 @@
                 address: '',
                 privateKey: '',
 
-                //queryAddress: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
-                queryAddress: '',
+                queryAddress: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
+                // queryAddress: '',
                 balance: '',
 
 
-                // sendAddress: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
-                // sendPrivateKey: '0x98319d4ff8a9508c4bb0cf0b5a78d760a0b2082c02775e6e82370816fedfff48925a225d97aa00682d6a59b95b18780c10d7032336e88f3442b42361f4a66011',
-                // dest: '5EtYZwFsQR2Ex1abqYFsmTxpHWytPkphS1LDsrCJ2Gr6b695',
-                // amount: '100',
-                sendAddress: '',
-                sendPrivateKey: '',
-                dest: '',
-                amount: '',
+                sendAddress: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
+                sendPrivateKey: '0x98319d4ff8a9508c4bb0cf0b5a78d760a0b2082c02775e6e82370816fedfff48925a225d97aa00682d6a59b95b18780c10d7032336e88f3442b42361f4a66011',
+                dest: '5EtYZwFsQR2Ex1abqYFsmTxpHWytPkphS1LDsrCJ2Gr6b695',
+                amount: '1000',
+                // sendAddress: '',
+                // sendPrivateKey: '',
+                // dest: '',
+                // amount: '',
 
                 showResult: false,
                 result: '',
@@ -320,6 +320,12 @@
                     return
                 }
 
+                if (that.amount<1000){
+                    that.result = 'The amount should not be less than 1000'
+                    that.showResult = true
+                    return
+                }
+
                 let sendShardNum = api.utils.getShardNum(that.sendAddress)
                 let destShardNum = api.utils.getShardNum(that.dest)
                 console.log('sendShardNum', sendShardNum)
@@ -345,7 +351,15 @@
                     that.amount,
                     calls,
                     (call) => {
-                        api.utils.composeTransaction(that.sendAddress, secret, call)
+                        api.utils.composeTransaction(that.sendAddress, secret, call).then(()=>{
+                            that.result = 'Transfer successfully'
+                            that.showResult = true
+                            that.success = true
+                        }).catch((res)=>{
+                            that.result = 'Something is wrong'
+                            that.showResult = true
+                            that.success = false
+                        })
                     }
                 )
             }
