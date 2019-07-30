@@ -57,6 +57,15 @@ const api = {
         return api.request('post', '/', {'jsonrpc': '2.0', 'id': api.id++, 'method': method, 'params': params})
     },
     utils: {
+        isIntNum(val) {
+            var regPos = /^\d+$/; // 非负整数
+            if (regPos.test(val)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        ,
         getDisplayHash(hash) {
             return hash.substr(0, 8) + '...' + hash.substr(hash.length - 8, hash.length)
         },
@@ -107,6 +116,23 @@ const api = {
         srKeypairToSecret(pair) {
             return new Uint8Array(pair.slice(0, 64))
         },
+        getShardNum(address) {
+            let pub = ss58Decode(address);
+            if (pub == null) {
+                return null
+            }
+            let last = pub[31]
+            let mask = 0x03
+            let shardNum = mask & last
+            return shardNum
+        },
+        runInBalancesTransferCall(dest, value, calls, cb) {
+            let callBond = calls.balances.transfer(dest, value)
+            callBond.tie((call, i) => {
+                console.log('call:', call)
+                cb(call)
+            })
+        }
     }
 }
 

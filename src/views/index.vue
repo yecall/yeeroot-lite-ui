@@ -114,7 +114,7 @@
         <span class="result" v-if="balance">
           Balance {{ balance}} co
             <p>(1 co is 0.00000001 YEE)</p>
-        </span>
+            </span>
             </p>
             <button class="ceratedone" @click="check">Check</button>
         </section>
@@ -125,6 +125,15 @@
             <div class=" information">
                 <p class="title">
           <span class="innertitle">
+            From address
+          </span>
+                </p>
+                <input class="input" type="text" v-model="sendAddress">
+                <p class="production">Your wallet address</p>
+            </div>
+            <div class=" information">
+                <p class="title">
+                    <span class="innertitle">
             Private Key
           </span>
                 </p>
@@ -138,15 +147,19 @@
           </span>
                 </p>
                 <input class="input" type="text" v-model="dest">
-                <p class="production">The address which your will tranfer YEE to</p>
+                <p class="production">The address which your will transfer YEE to</p>
             </div>
             <div class=" information">
-                <p class="title">Amount</p>
-                <input class="input" type="text" v-model="value">
-                <p class="production">Token amount that your want it transfer</p>
+                <p class="title">
+                    <span class="innertitle">
+            Amount
+          </span>
+                </p>
+                <input class="input" type="text" v-model="amount">
+                <p class="production">Amount that your want it transfer (in co)</p>
             </div>
             <p class="balance ">
-        <span class="result" :class="{success:true}">
+        <span class="result" v-if="showResult" :class="{success:success}">
           {{result}}
         </span>
             </p>
@@ -160,6 +173,7 @@
 <script>
     import axios from 'axios';
     import api from '../lib/api';
+    import runtime from '../lib/runtime.js';
 
     export default {
         components: {},
@@ -207,19 +221,33 @@
                 ],
                 address: '',
                 privateKey: '',
-                queryAddress: '',
+
+                queryAddress: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
                 balance: '',
-                result: 'success !',
+
+
+                sendAddress: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
                 sendPrivateKey: '',
-                dest: '111111',
-                value: '100000',
+                dest: '5EtYZwFsQR2Ex1abqYFsmTxpHWytPkphS1LDsrCJ2Gr6b695',
+                amount: '100',
+
+                showResult: false,
+                result: '',
+                success: false
             };
         },
         computed: {},
         created() {
+            this.initRuntime()
             this.repeat()
         },
         methods: {
+            initRuntime() {
+                runtime.initRuntime()
+                window.calls = runtime.calls
+                window.api = api
+                window.runtime = runtime
+            },
             repeat() {
                 let that = this
                 for (let i = 0; i < 4; i++) {
@@ -259,7 +287,7 @@
                 console.log('creat account')
                 let pair = api.utils.generateSrKeyPair()
                 this.address = ss58Encode(api.utils.srKeypairToPublic(pair))
-                this.privateKey = '0x'+ bytesToHex(api.utils.srKeypairToSecret(pair))
+                this.privateKey = '0x' + bytesToHex(api.utils.srKeypairToSecret(pair))
             },
             check() {
                 console.log('check')
@@ -276,7 +304,43 @@
                 )
             },
             transfer() {
+                let that = this
+                that.result = ''
+                that.showResult = false
+                that.success = false
 
+                if (that.sendAddress == '' || that.sendPrivateKey == '' || that.dest == '' || that.amount == '') {
+                    that.result = 'Please fill all'
+                    that.showResult = true
+                    return
+                }
+
+                let sendShardNum = api.utils.getShardNum(that.sendAddress)
+                let destShardNum = api.utils.getShardNum(that.dest)
+                console.log('sendShardNum', sendShardNum)
+                console.log('destShardNum', destShardNum)
+
+                if (sendShardNum != destShardNum) {
+                    that.result = 'From address and to address should be in the same shard'
+                    that.showResult = true
+                    return
+                }
+
+                if (!api.utils.isIntNum(that.amount)) {
+                    that.result = 'Amount should be a integer'
+                    that.showResult = true
+                    return
+                }
+
+                let destBytes = ss58Decode(that.dest)
+                api.utils.runInBalancesTransferCall(
+                    that.destBytes,
+                    that.amount,
+                    calls,
+                    (call) => {
+
+                    }
+                )
             }
         }
     }
@@ -486,7 +550,7 @@
                     border-bottom: 1px solid red;
                 }
 
-                p{
+                p {
                     margin-top: 20px;
                 }
             }
