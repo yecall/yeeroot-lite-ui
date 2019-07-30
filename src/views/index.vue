@@ -227,7 +227,7 @@
 
 
                 sendAddress: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
-                sendPrivateKey: '',
+                sendPrivateKey: '0x98319d4ff8a9508c4bb0cf0b5a78d760a0b2082c02775e6e82370816fedfff48925a225d97aa00682d6a59b95b18780c10d7032336e88f3442b42361f4a66011',
                 dest: '5EtYZwFsQR2Ex1abqYFsmTxpHWytPkphS1LDsrCJ2Gr6b695',
                 amount: '100',
 
@@ -332,7 +332,6 @@
                     return
                 }
 
-                let senderBytes = ss58Decode(that.sendAddress)
                 let destBytes = ss58Decode(that.dest)
                 let secret = hexToBytes(that.sendPrivateKey)
                 console.log('destBytes:', destBytes)
@@ -341,7 +340,7 @@
                     that.amount,
                     calls,
                     (call) => {
-                        api.utils.composeTransaction(senderBytes, secret, call)
+                        api.utils.composeTransaction(that.sendAddress, secret, call)
                     }
                 )
             }

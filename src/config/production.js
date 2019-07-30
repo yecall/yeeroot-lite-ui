@@ -1,4 +1,4 @@
 module.exports = {
-    apiBase: '//poc.yeeco.io',
-    wwwBase: '//poc.yeeco.io'
+    apiBase: '//pocnet.yeeco.io/api',
+    wwwBase: '//pocnet.yeeco.io'
 }

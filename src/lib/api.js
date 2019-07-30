@@ -4,6 +4,7 @@ import {
     calls, runtime, chain, system, runtimeUp, ss58Decode, ss58Encode, pretty,
     addressBook, secretStore, metadata, nodeService, bytesToHex, hexToBytes, AccountId
 } from 'oo7-substrate';
+import { sign, verify } from '@polkadot/wasm-schnorrkel';
 
 const api = {
     id: 0,
@@ -106,8 +107,8 @@ const api = {
         },
         generateSrKeyPair() {
             let mnemonic = secretStore().generateMnemonic()
-            // let seed = srKeypairFromUri("//Alice")
-            let seed = srKeypairFromUri(mnemonic)
+            let seed = srKeypairFromUri("//Alice")
+            // let seed = srKeypairFromUri(mnemonic)
             return seed
         },
         srKeypairToPublic(pair) {
@@ -129,20 +130,68 @@ const api = {
         runInBalancesTransferCall(dest, value, calls, cb) {
             let callBond = calls.balances.transfer(dest, value)
             callBond.tie((call, i) => {
-                console.log('call:', call)
+                console.log('call: ', call)
                 cb(call)
+                callBond.untie()
             })
         },
         composeTransaction(sender, secret, call){
 
             return new Promise((resolve, reject) => {
 
-                let shardNum = api.utils.getShardNum(ss58Encode(sender))
-                console.log(shardNum)
+                let senderBytes = ss58Decode(sender)
+                let shardNum = api.utils.getShardNum(sender)
+                console.log('shardNum:', shardNum)
 
                 api.rpcCall('chain_getHead', [shardNum, 0]).then((res) => {
-                    let hash = res.data.result
-                    console.log(hash)
+                    let eraHash = hexToBytes(res.data.result)
+
+                    console.log('eraHash: ', res.data.result, eraHash)
+                    let era = new TransactionEra
+
+                    api.rpcCall('state_getNonce', [sender]).then((res)=>{
+                        let index = eval(res.data.result)
+                        console.log('index: ', index)
+
+                        let e = encode([
+                            index, call, era, eraHash
+                        ], [
+                            'Compact<Index>', 'Call', 'TransactionEra', 'Hash'
+                        ])
+
+                        console.log('e: ', e)
+
+                        let signature = sign(senderBytes, secret, e)
+                        if (!verify(signature, e, senderBytes)) {
+                            console.warn(`Signature is INVALID!`)
+                            reject('sign error')
+                            return
+                        }
+                        console.log('signature: ', signature)
+
+                        let signedData = encode(encode({
+                            _type: 'Transaction',
+                            version: 0x81,
+                            sender,
+                            signature,
+                            index,
+                            era,
+                            call
+                        }), 'Vec<u8>')
+                        let extrinsic = '0x'+bytesToHex(signedData)
+                        console.log("extrinsic:", extrinsic)
+
+                        api.rpcCall('author_submitExtrinsic', [extrinsic]).then(
+                            (res)=>{
+                                console.log("res:", res)
+                            }
+                        ).catch((res)=>{
+                            reject(res)
+                        })
+
+                    }).catch((res)=>{
+                        reject(res)
+                    })
 
                 }).catch((res)=>{
                     reject(res)
