@@ -1,5 +1,4 @@
 module.exports = {
-  // apiBase: 'http://localhost:10033',
-  apiBase: '//pocnet.yeeco.io/api',
+  apiBase: 'http://localhost:10033',
   wwwBase: 'http://localhost:8081'
 }

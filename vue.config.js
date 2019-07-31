@@ -1,5 +1,6 @@
 // const PrerenderSPAPlugin = require('prerender-spa-plugin');
 // const Renderer = PrerenderSPAPlugin.PuppeteerRenderer;
+const webpack = require('webpack')
 const path = require('path');
 const px2rem = require('postcss-pxtorem');
 const postcss = px2rem({
@@ -52,7 +53,11 @@ module.exports = {
     configureWebpack: config => {
         if (process.env.NODE_ENV !== 'production') return;
         return {
+            optimization:{
+                minimize: false,
+            },
             plugins: [
+
                 // new PrerenderSPAPlugin({
                 //     // 生成文件的路径，也可以与webpakc打包的一致。
                 //     // 下面这句话非常重要！！！
