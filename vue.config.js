@@ -1,5 +1,5 @@
-const PrerenderSPAPlugin = require('prerender-spa-plugin');
-const Renderer = PrerenderSPAPlugin.PuppeteerRenderer;
+// const PrerenderSPAPlugin = require('prerender-spa-plugin');
+// const Renderer = PrerenderSPAPlugin.PuppeteerRenderer;
 const path = require('path');
 const px2rem = require('postcss-pxtorem');
 const postcss = px2rem({
