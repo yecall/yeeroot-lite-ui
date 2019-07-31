@@ -221,7 +221,7 @@ export default {
         }
       ],
       address: '',
-      privateKey: '232323232323223',
+      privateKey: '',
 
       queryAddress: '',
       balance: '',
@@ -529,6 +529,7 @@ export default {
           justify-content: space-between;
 
           .balance {
+            height 32px
             font-size: 20px;
             font-weight: bolder;
             color: #444;
@@ -606,6 +607,9 @@ export default {
         border: none;
         background: #fff;
         height: 100%;
+      }
+      .copy{
+        cursor pointer
       }
     }
 
