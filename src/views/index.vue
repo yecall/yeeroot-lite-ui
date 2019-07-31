@@ -113,7 +113,7 @@
             <p class="production"> Check the balance of the address ( 1 co is 0.00000001 YEE ) </p>
             <p class="balance">
         <span class="result" v-if="balance!==''">
-          Balance is {{ balance}} co , Nonce is {{nonce}}
+          Balance is {{ balance}} co , Nonce is {{nonce}}, Shard num is {{shardNum}}
             </span>
             </p>
             <button class="ceratedone" @click="check">Check</button>
@@ -225,6 +225,7 @@
                 queryAddress: '',
                 balance: '',
                 nonce: '',
+                shardNum: '',
 
                 sendAddress: '',
                 sendPrivateKey: '',
@@ -308,6 +309,7 @@
                     (res) => {
                         that.balance = eval(res[0].data.result)
                         that.nonce = eval(res[1].data.result)
+                        that.shardNum = api.utils.getShardNum(that.queryAddress)
                     }).catch((res)=>{
                         console.log(res)
                 })
