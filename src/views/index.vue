@@ -172,7 +172,6 @@
   </section>
 </template>
 <script>
-// import axios from 'axios';
 import api from '../lib/api';
 import runtime from '../lib/runtime.js';
 
@@ -549,7 +548,7 @@ export default {
   padding-top: 120px;
 
   &.balance, &.transfer {
-    padding-top: 30px;
+    padding-top: 80px;
   }
 
   .name {
@@ -608,8 +607,18 @@ export default {
         background: #fff;
         height: 100%;
       }
+
+      &.privatekey {
+        height: 80px;
+        .privatekeytext {
+          width: 380px;
+          word-wrap: break-word;
+          word-break: normal;
+        }
+      }
+
       .copy{
-        cursor pointer
+        cursor: pointer
       }
     }
 

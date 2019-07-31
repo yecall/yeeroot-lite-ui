@@ -7,8 +7,9 @@ import './assets/css/reset.css'
 import element from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import vueClipboards from 'vue-clipboard2';
-vueClipboards.config.autoSetContainer = true;
 // import './assets/js/rem.js'
+
+vueClipboards.config.autoSetContainer = true;
 Vue.config.productionTip = false
 Vue.use(I18n);
 Vue.use(element);
