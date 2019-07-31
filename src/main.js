@@ -6,12 +6,15 @@ import router from './router';
 import './assets/css/reset.css'
 import element from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
-import Clipboard from 'v-clipboard'
+import vueClipboards from 'vue-clipboard2';
+
+vueClipboards.config.autoSetContainer = true;
+
+Vue.use(vueClipboards)
 // import './assets/js/rem.js'
 Vue.config.productionTip = false
 Vue.use(I18n);
 Vue.use(element);
-Vue.use(Clipboard)
 
 const i18n = new I18n({
   locale: 'zh',

@@ -80,7 +80,7 @@
                 </p>
                 <p class="address">
                     <span>{{address}}</span>
-                    <span class="copy" v-clipboard="address" v-clipboard:success="copysuccess"
+                    <span class="copy" v-clipboard:copy="address" v-clipboard:success="copysuccess"
                           v-clipboard:error="copyerror">Copy</span>
                 </p>
             </div>
@@ -90,7 +90,7 @@
                 </p>
                 <p class="address privatekey">
                     <span class="privatekeytext">{{privateKey}}</span>
-                    <span class="copy" v-clipboard="privateKey" v-clipboard:success="copysuccess"
+                    <span class="copy" v-clipboard:copy="privateKey" v-clipboard:success="copysuccess"
                           v-clipboard:error="copyerror">Copy</span>
                 </p>
             </div>
@@ -286,19 +286,20 @@
                     }
                 )
             },
-            copysuccess({ value, event }) {
-                console.log(value)
-                this.$alert('success')
+            copysuccess() {
+                console.log(arguments)
+                // this.$alert('success')
             },
             copyerror({ value, event }) {
                 console.log(value)
-                this.$alert('error')
+                // this.$alert('error')
             },
             create() {
                 console.log('creat account')
                 let pair = api.utils.generateSrKeyPair()
                 this.address = ss58Encode(api.utils.srKeypairToPublic(pair))
                 this.privateKey = '0x' + bytesToHex(api.utils.srKeypairToSecret(pair))
+                console.log(this.privateKey)
             },
             check() {
                 console.log('check')
