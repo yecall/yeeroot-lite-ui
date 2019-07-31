@@ -308,7 +308,9 @@
                     (res) => {
                         that.balance = eval(res[0].data.result)
                         that.nonce = eval(res[1].data.result)
-                    })
+                    }).catch((res)=>{
+                        console.log(res)
+                })
             },
             transfer() {
                 let that = this
