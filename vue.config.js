@@ -12,9 +12,6 @@ const postcss = px2rem({
 
 });
 module.exports = {
-    devServer:{
-        disableHostCheck: true,
-    },
     css: {
         loaderOptions: {
             postcss: {
@@ -77,6 +74,7 @@ module.exports = {
         };
     },
     devServer: {
+        disableHostCheck: true,
         proxy: {
             '/report/api': {
                 target: ' https://in.com:1443',
