@@ -287,7 +287,7 @@ export default {
   },
   computed: {},
   created() {
-    this.initDev()
+    //this.initDev()
     this.initRuntime()
     this.repeat()
   },
