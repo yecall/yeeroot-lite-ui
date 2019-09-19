@@ -384,12 +384,6 @@ export default {
       console.log('sendShardNum', sendShardNum)
       console.log('destShardNum', destShardNum)
 
-      if (sendShardNum != destShardNum) {
-        that.result = 'From address and to address should be in the same shard'
-        that.showResult = true
-        return
-      }
-
       if (!api.utils.isIntNum(that.amount)) {
         that.result = 'Amount should be a integer'
         that.showResult = true
