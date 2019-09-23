@@ -78,9 +78,9 @@ const api = {
                         //console.log(number)
 
                         let ps = [
-                            api.rpcCall('chain_getHead', [shardNum, number]),
-                            api.rpcCall('chain_getHead', [shardNum, number - 1]),
-                            api.rpcCall('chain_getHead', [shardNum, number - 2])
+                            api.rpcCall('chain_getBlockHash', [shardNum, number]),
+                            api.rpcCall('chain_getBlockHash', [shardNum, number - 1]),
+                            api.rpcCall('chain_getBlockHash', [shardNum, number - 2]),
                         ]
 
                         Promise.all(ps).then(
@@ -90,7 +90,28 @@ const api = {
                                 ret[0] = {number: number, hash: res[0].data.result}
                                 ret[1] = {number: number - 1, hash: res[1].data.result}
                                 ret[2] = {number: number - 2, hash: res[2].data.result}
-                                resolve(ret)
+
+                                let ps = [
+                                    api.rpcCall('chain_getHeader', [shardNum, ret[0].hash]),
+                                    api.rpcCall('chain_getHeader', [shardNum, ret[1].hash]),
+                                    api.rpcCall('chain_getHeader', [shardNum, ret[2].hash]),
+                                ]
+
+                                Promise.all(ps).then(
+                                    (res2) => {
+                                        console.log(res2)
+                                        let ret2 = []
+                                        ret2[0] = {number: number, hash: ret[0].hash, digest: res2[0].data.result.digest}
+                                        ret2[1] = {number: number - 1, hash: ret[1].hash, digest: res2[1].data.result.digest}
+                                        ret2[2] = {number: number - 2, hash: ret[2].hash, digest: res2[2].data.result.digest}
+
+                                        resolve(ret2)
+                                    }
+                                ).catch(
+                                    (res) => {
+                                        reject(res)
+                                    }
+                                )
                             }
                         ).catch(
                             (res) => {
@@ -224,6 +245,57 @@ const api = {
 
             })
 
+        },
+        compactLen(num) {
+            if(num<=0b00111111){
+                return 1;
+            }else if(num <= 0b0011111111111111){
+                return 2;
+            }else if(num <= 0b00111111111111111111111111111111){
+                return 4;
+            }
+            return 5;
+        },
+        decodePowSeal(input){
+            input = input.replace('0x', '')
+            let digestItemType = decode(hexToBytes(input.substr(0, 2)), 'u16');
+            if (digestItemType != 4) {
+                return null;
+            }
+
+            let vecLen = decode(hexToBytes(input.substr(2+8, 10)), 'Compact<u32>');
+            let compactLen = api.utils.compactLen(vecLen);
+
+            let timestamp = decode(hexToBytes(input.substr(2+8+compactLen*2+64+64, 16)), 'u64');
+
+            let workProofType = decode(hexToBytes(input.substr(2+8+compactLen*2+64+64+16, 2)), 'u16');
+
+            let workProof = {};
+
+            let workProofOffset = 2+8+compactLen*2+64+64+16+2;
+
+            if( workProofType == 1 ) {
+                //do nothing
+
+            } else if( workProofType == 2 ) {
+                let extraDataLen = decode(hexToBytes(input.substr(workProofOffset, 10)), 'Compact<u32>');
+                compactLen = api.utils.compactLen(extraDataLen);
+
+                let merkleRoot = input.substr(workProofOffset + compactLen*2 + extraDataLen * 2, 64);
+
+                workProof = {
+                    extraDataLen,
+                    merkleRoot,
+                }
+            }
+
+            return {
+                digestItemType,
+                vecLen,
+                timestamp,
+                workProofType,
+                workProof,
+            }
         }
 
     }

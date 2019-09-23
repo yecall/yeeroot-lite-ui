@@ -29,40 +29,31 @@
               <span class="bold">{{index}}</span>
             </section>
           </div>
-          <div class="part line">
+          <div v-for="(subItem, subIndex) in item" :class=" subIndex===item.length-1 ? 'part' : 'part line'">
             <div class="up">
               <span>
-                HEIGHT</span>
-              <span class="balance">{{item.number0}}</span>
+                NUMBER</span>
+              <span class="balance">{{subItem.number}}</span>
+            </div>
+            <div class="up">
+              <span>
+                HASH</span>
+              <span class="hash">{{subItem.hash}}</span>
+            </div>
+            <div class="up">
+              <span>
+                MPMR</span>
+                  <template v-if="subItem.number">
+                    <span class="hash" v-if="subItem.mpmr">{{subItem.mpmr}}</span>
+                    <span class="hash" v-else>Not multi-mined</span>
+                  </template>
             </div>
             <div class="bottom">
               <span>
-                HASH</span>
-              <span class="hash">{{item.hash0}}</span>
-            </div>
-          </div>
-          <div class="part line">
-            <div class="up">
-              <span>
-                HEIGHT</span>
-              <span class="balance">{{item.number1}}</span>
-            </div>
-            <div class="bottom">
-              <span>
-                HASH</span>
-              <span class="hash">{{item.hash1}}</span>
-            </div>
-          </div>
-          <div class="part">
-            <div class="up">
-              <span>
-                HEIGHT</span>
-              <span class="balance">{{item.number2}}</span>
-            </div>
-            <div class="bottom">
-              <span>
-                HASH</span>
-              <span class="hash">{{item.hash2}}</span>
+                TIME</span>
+              <span class="hash">
+                <vueDateFormat v-if="subItem.number" format="hh:mm:ss dd/MM/yyyy" :time="subItem.time" type="fmt" :autoUpdate="false"></vueDateFormat>
+              </span>
             </div>
           </div>
         </li>
@@ -179,45 +170,93 @@ export default {
   components: {},
   data() {
     return {
-      value: '复制的内容',
+      value: '',
       link: [
         'PARTNER PROGRAM',
         'CONTACT US',
         'EN'
       ],
       blocks: [
-        {
-          number0: '',
-          number1: '',
-          number2: '',
-          hash0: '',
-          hash1: '',
-          hash2: '',
-        },
-        {
-          number0: '',
-          number1: '',
-          number2: '',
-          hash0: '',
-          hash1: '',
-          hash2: '',
-        },
-        {
-          number0: '',
-          number1: '',
-          number2: '',
-          hash0: '',
-          hash1: '',
-          hash2: '',
-        },
-        {
-          number0: '',
-          number1: '',
-          number2: '',
-          hash0: '',
-          hash1: '',
-          hash2: '',
-        }
+          [
+              {
+                  number: '',
+                  hash: '',
+                  mpmr: '',
+                  time: '',
+              },
+              {
+                  number: '',
+                  hash: '',
+                  mpmr: '',
+                  time: '',
+              },
+              {
+                  number: '',
+                  hash: '',
+                  mpmr: '',
+                  time: '',
+              }
+          ],
+          [
+              {
+                  number: '',
+                  hash: '',
+                  mpmr: '',
+                  time: '',
+              },
+              {
+                  number: '',
+                  hash: '',
+                  mpmr: '',
+                  time: '',
+              },
+              {
+                  number: '',
+                  hash: '',
+                  mpmr: '',
+                  time: '',
+              }
+          ],
+          [
+              {
+                  number: '',
+                  hash: '',
+                  mpmr: '',
+                  time: '',
+              },
+              {
+                  number: '',
+                  hash: '',
+                  mpmr: '',
+                  time: '',
+              },
+              {
+                  number: '',
+                  hash: '',
+                  mpmr: '',
+                  time: '',
+              }
+          ],
+          [
+              {
+                  number: '',
+                  hash: '',
+                  mpmr: '',
+                  time: '',
+              },
+              {
+                  number: '',
+                  hash: '',
+                  mpmr: '',
+                  time: '',
+              },
+              {
+                  number: '',
+                  hash: '',
+                  mpmr: '',
+                  time: '',
+              }
+          ]
       ],
       address: '',
       privateKey: '',
@@ -319,14 +358,32 @@ export default {
       api.utils.getRecentBlocks(shardNum).then(
         (res) => {
           console.log('res:', res)
-          that.blocks.splice(shardNum, 1, {
-            number0: res[0]['number'],
-            number1: res[1]['number'],
-            number2: res[2]['number'],
-            hash0: api.utils.getDisplayHash(res[0]['hash']),
-            hash1: api.utils.getDisplayHash(res[1]['hash']),
-            hash2: api.utils.getDisplayHash(res[2]['hash']),
-          })
+          let count = 3;
+          let blocksOfShard = [];
+          for(let i=0; i < count; i++) {
+
+              let number = res[i]['number']
+              let hash = api.utils.getDisplayHash(res[i]['hash'])
+              let seal = null
+              if(res[i]['digest'] && res[i]['digest']['logs']){
+                  for (let digestItem in res[i]['digest']['logs']){
+                      digestItem = res[i]['digest']['logs'][digestItem]
+                      seal = api.utils.decodePowSeal(digestItem)
+                  }
+              }
+              let mpmr = seal != null && seal.workProofType == 2 ? api.utils.getDisplayHash('0x' + seal.workProof.merkleRoot) : null
+              let time = seal != null ? new Date(seal.timestamp) : null
+
+              console.log(time);
+
+              blocksOfShard.push({
+                  number,
+                  hash,
+                  mpmr,
+                  time
+              })
+          }
+          that.blocks.splice(shardNum, 1, blocksOfShard)
           //console.log('blocks: ', that.blocks)
         }
       ).catch(
@@ -737,7 +794,7 @@ export default {
             background-image: url('../assets/img/footer/ic_chainnode_2.png');
           }
         }
-      
+
     }
   }
 }
