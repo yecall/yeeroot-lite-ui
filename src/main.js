@@ -7,6 +7,7 @@ import './assets/css/reset.css'
 import element from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import vueClipboards from 'vue-clipboard2';
+import vueDateFormat from 'vue-date-format'
 // import './assets/js/rem.js'
 
 vueClipboards.config.autoSetContainer = true;
@@ -14,6 +15,7 @@ Vue.config.productionTip = false
 Vue.use(I18n);
 Vue.use(element);
 Vue.use(vueClipboards)
+Vue.use(vueDateFormat)
 
 const i18n = new I18n({
   locale: 'zh',
