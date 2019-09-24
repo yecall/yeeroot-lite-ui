@@ -68,7 +68,7 @@ const api = {
         }
         ,
         getDisplayHash(hash) {
-            return hash.substr(0, 8) + '...' + hash.substr(hash.length - 8, hash.length)
+            return hash.substr(0, 6) + '...' + hash.substr(hash.length - 6, hash.length)
         },
         getRecentBlocks(shardNum) {
             return new Promise((resolve, reject) => {

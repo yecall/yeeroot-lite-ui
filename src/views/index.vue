@@ -44,7 +44,7 @@
               <span>
                 MPMR</span>
                             <template v-if="subItem.number">
-                                <span class="hash" v-if="subItem.mpmr">{{subItem.mpmr}}</span>
+                                <span :class="'hash mpmr-' + subItem.mpmrId"  v-if="subItem.mpmr">{{subItem.mpmr}}</span>
                                 <span class="hash" v-else>Not multi-mined</span>
                             </template>
                         </div>
@@ -52,7 +52,7 @@
               <span>
                 TIME</span>
                             <span class="hash">
-                <vueDateFormat v-if="subItem.number" format="hh:mm:ss dd/MM/yyyy" :time="subItem.time" type="fmt"
+                <vueDateFormat v-if="subItem.number" format="hh:mm:ss dd/MM" :time="subItem.time" type="fmt"
                                :autoUpdate="false"></vueDateFormat>
               </span>
                         </div>
@@ -348,50 +348,139 @@
             },
             repeat() {
                 let that = this
-                for (let i = 0; i < 4; i++) {
-                    that.refreshRecentBlocks(i)
-                    setInterval(() => {
-                        that.refreshRecentBlocks(i)
-                    }, 20000)
-                }
+                that.refreshRecentBlocks()
+                setInterval(() => {
+                    that.refreshRecentBlocks()
+                }, 20000)
             },
-            refreshRecentBlocks(shardNum) {
+            refreshRecentBlocks(){
                 let that = this
-                api.utils.getRecentBlocks(shardNum).then(
-                    (res) => {
-                        console.log('res:', res)
-                        let count = 3;
-                        let blocksOfShard = [];
-                        for (let i = 0; i < count; i++) {
+                let count = 4;
 
-                            let number = res[i]['number']
-                            let hash = api.utils.getDisplayHash(res[i]['hash'])
-                            let seal = null
-                            if (res[i]['digest'] && res[i]['digest']['logs']) {
-                                for (let digestItem in res[i]['digest']['logs']) {
-                                    digestItem = res[i]['digest']['logs'][digestItem]
-                                    seal = api.utils.decodePowSeal(digestItem)
+                let ps = []
+                for(let i=0; i<count; i++){
+                    ps.push(that.refreshRecentBlocksPromise(i));
+                }
+
+                Promise.all(ps).then(
+                    (res) => {
+                        console.log(res)
+
+                        let blocks = []
+
+                        for(let i=0; i<count; i++){
+                            let shardRes = res[i]
+                            let blocksOfShard = [
+                                {
+                                    number: '',
+                                    hash: '',
+                                    mpmr: '',
+                                    time: '',
+                                },
+                                {
+                                    number: '',
+                                    hash: '',
+                                    mpmr: '',
+                                    time: '',
+                                },
+                                {
+                                    number: '',
+                                    hash: '',
+                                    mpmr: '',
+                                    time: '',
+                                }
+                            ]
+                            if(!(shardRes.data && shardRes.data.error)) {
+                                blocksOfShard = shardRes
+                            }
+                            blocks.push(blocksOfShard)
+                        }
+
+                        //check same mpmr
+                        let mpmrMap = {}
+                        for(let i in blocks){
+                            for(let j in blocks[i]){
+                                let mpmr = blocks[i][j].mpmr
+                                if(mpmr){
+                                    if (mpmrMap[mpmr]){
+                                        mpmrMap[mpmr]++
+                                    }else{
+                                        mpmrMap[mpmr] = 1
+                                    }
                                 }
                             }
-                            let mpmr = seal != null && seal.workProofType == 2 ? api.utils.getDisplayHash('0x' + seal.workProof.merkleRoot) : null
-                            let time = seal != null ? new Date(seal.timestamp) : null
-
-                            console.log(time);
-
-                            blocksOfShard.push({
-                                number,
-                                hash,
-                                mpmr,
-                                time
-                            })
                         }
-                        that.blocks.splice(shardNum, 1, blocksOfShard)
-                        //console.log('blocks: ', that.blocks)
+                        let mpmrList = []
+                        for(let i in mpmrMap){
+                            mpmrList.push({mpmr: i, count: mpmrMap[i]})
+                        }
+                        mpmrList.sort((a, b)=>{
+                            return a.count - b.count
+                        })
+
+                        mpmrMap = {}
+                        for(let i in mpmrList){
+                            mpmrMap[mpmrList[i]['mpmr']] = i
+                        }
+
+                        console.log(mpmrMap)
+
+                        for(var i in blocks){
+                            for(var j in blocks[i]){
+                                let mpmr = blocks[i][j].mpmr
+                                if(mpmr) {
+                                    blocks[i][j]['mpmrId'] = mpmrMap[mpmr]
+                                }
+                            }
+                        }
+                        console.log(blocks)
+
+                        for(let i=0; i<count; i++) {
+                            that.blocks.splice(i, 1, blocks[i])
+                        }
                     }
                 ).catch(
                     (res) => {
                     }
                 )
+            },
+            refreshRecentBlocksPromise(shardNum) {
+                return new Promise((resolve, reject) => {
+                    let that = this
+                    api.utils.getRecentBlocks(shardNum).then(
+                        (res) => {
+                            console.log('res:', res)
+                            let count = 3;
+                            let blocksOfShard = [];
+                            for (let i = 0; i < count; i++) {
+
+                                let number = res[i]['number']
+                                let hash = api.utils.getDisplayHash(res[i]['hash'])
+                                let seal = null
+                                if (res[i]['digest'] && res[i]['digest']['logs']) {
+                                    for (let digestItem in res[i]['digest']['logs']) {
+                                        digestItem = res[i]['digest']['logs'][digestItem]
+                                        seal = api.utils.decodePowSeal(digestItem)
+                                    }
+                                }
+                                let mpmr = seal != null && seal.workProofType == 2 ? api.utils.getDisplayHash('0x' + seal.workProof.merkleRoot) : null
+                                let time = seal != null ? new Date(seal.timestamp) : null
+
+                                blocksOfShard.push({
+                                    number,
+                                    hash,
+                                    mpmr,
+                                    time
+                                })
+                            }
+                            resolve(blocksOfShard)
+                        }
+                    ).catch(
+                        (res) => {
+                            resolve(res)
+                        }
+                    )
+                })
             },
             copysuccess() {
                 // console.log(arguments)
@@ -590,6 +679,18 @@
                         .hash {
                             font-size: 12px;
                             text-align: base;
+                        }
+
+                        .mpmr-0 {
+                            color: #a73c12;
+                        }
+
+                        .mpmr-1 {
+                            color: #1779af;
+                        }
+
+                        .mpmr-2 {
+                            color: #0f9d70;
                         }
                     }
                 }
