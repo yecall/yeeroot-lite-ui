@@ -60,6 +60,9 @@
                 </li>
             </ul>
         </section>
+        <section>
+            <div class="block-tip center" style="padding-top:100px;">* MPMR: Short for "Multi proof merkle root". Blocks of different shards with the same MPMR were mined at the same time by a multi miner. </div>
+        </section>
         <section class="creat center">
             <div class="name">
                 Create Wallet
@@ -646,7 +649,7 @@
                         background: #f7f8f8;
 
                         .bold {
-                            font-size: 18px;
+                            font-size: 16px;
                             font-weight: 600;
 
                             &.shard {
@@ -671,7 +674,7 @@
 
                         .balance {
                             height 32px
-                            font-size: 20px;
+                            font-size: 18px;
                             font-weight: bolder;
                             color: #444;
                         }
@@ -698,8 +701,12 @@
         }
     }
 
+    .block-tip {
+        padding-top: 100px;
+    }
+
     .creat {
-        padding-top: 120px;
+        padding-top: 60px;
 
         &.balance, &.transfer {
             padding-top: 80px;
