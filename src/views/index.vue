@@ -337,11 +337,11 @@
         },
         methods: {
             initDev() {
-                this.queryAddress = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'
-                this.sendAddress = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'
-                this.sendPrivateKey = '0x98319d4ff8a9508c4bb0cf0b5a78d760a0b2082c02775e6e82370816fedfff48925a225d97aa00682d6a59b95b18780c10d7032336e88f3442b42361f4a66011'
-                this.dest = '5EtYZwFsQR2Ex1abqYFsmTxpHWytPkphS1LDsrCJ2Gr6b695'
-                this.amount = 1000
+                this.queryAddress = 'tyee15c2cc2uj34w5jkfzxe4dndpnngprxe4nytaj9axmzf63ur4f8awq806lv6'
+                this.sendAddress = 'tyee15c2cc2uj34w5jkfzxe4dndpnngprxe4nytaj9axmzf63ur4f8awq806lv6'
+                this.sendPrivateKey = '0xf8eb0d437140e458ec6103965a4442f6b00e37943142017e9856f3310023ab530a0cc96e386686f95d2da0c7fa423ab7b84d5076b3ba6e7756e21aaafe9d3696'
+                this.dest = 'tyee1j2hkatdprkyz9mcxj3d244vhr6a6m3cf982hrlkm937wuqhmg9uqd879eg'
+                this.amount = 100000000
             },
             initRuntime() {
                 runtime.initRuntime()
@@ -496,7 +496,7 @@
             createaccount() {
                 console.log('creat account')
                 let pair = api.utils.generateSrKeyPair()
-                this.address = ss58Encode(api.utils.srKeypairToPublic(pair))
+                this.address = api.utils.bech32Encode(api.utils.srKeypairToPublic(pair))
                 this.privateKey = '0x' + bytesToHex(api.utils.srKeypairToSecret(pair))
             },
             check() {
@@ -507,7 +507,7 @@
                     (res) => {
                         that.balance = eval(res[0].data.result)
                         that.nonce = eval(res[1].data.result)
-                        that.shardNum = api.utils.getShardNum(that.queryAddress)
+                        that.shardNum = api.utils.getShardNum(api.utils.bech32Decode(that.queryAddress))
                     }).catch((res) => {
                     console.log(res)
                 })
@@ -541,15 +541,16 @@
                     return
                 }
 
-                let destBytes = ss58Decode(that.dest)
+                let descPublic = api.utils.bech32Decode(that.dest)
+                let senderPublic = api.utils.bech32Decode(that.sendAddress)
                 let secret = hexToBytes(that.sendPrivateKey)
-                console.log('destBytes:', destBytes)
+                console.log('descPublic:', descPublic)
                 api.utils.runInBalancesTransferCall(
-                    destBytes,
+                    descPublic,
                     that.amount,
                     calls,
                     (call) => {
-                        api.utils.composeTransaction(that.sendAddress, secret, call).then(() => {
+                        api.utils.composeTransaction(senderPublic, secret, call).then(() => {
                             that.result = 'Transfer successfully'
                             that.showResult = true
                             that.success = true

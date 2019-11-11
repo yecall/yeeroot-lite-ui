@@ -1,13 +1,15 @@
 import conf from '@/config'
 import axios from 'axios'
 import {
-    calls, runtime, chain, system, runtimeUp, ss58Decode, ss58Encode, pretty,
+    calls, runtime, chain, system, runtimeUp, pretty,
     addressBook, secretStore, metadata, nodeService, bytesToHex, hexToBytes, AccountId
 } from 'oo7-substrate';
 import {sign, verify} from '@polkadot/wasm-schnorrkel';
+import bech32 from 'bech32';
 
 const api = {
     id: 0,
+    hrp: "tyee",
     request(method, path, params) {
         let url = conf.apiBase + path
         params = params || {}
@@ -150,12 +152,14 @@ const api = {
         srKeypairToSecret(pair) {
             return new Uint8Array(pair.slice(0, 64))
         },
-        getShardNum(address) {
-            let pub = ss58Decode(address);
-            if (pub == null) {
-                return null
-            }
-            let last = pub[31]
+        bech32Encode(bytes) {
+            return bech32.encode(api.hrp, bech32.toWords(bytes))
+        },
+        bech32Decode(str) {
+            return new Uint8Array(bech32.fromWords(bech32.decode(str).words))
+        },
+        getShardNum(addressPublic) {
+            let last = addressPublic[31]
             let mask = 0x03
             let shardNum = mask & last
             return shardNum
@@ -168,12 +172,11 @@ const api = {
                 callBond.untie()
             })
         },
-        composeTransaction(sender, secret, call) {
+        composeTransaction(senderPublic, secret, call) {
 
             return new Promise((resolve, reject) => {
 
-                let senderBytes = ss58Decode(sender)
-                let shardNum = api.utils.getShardNum(sender)
+                let shardNum = api.utils.getShardNum(senderPublic)
                 console.log('shardNum:', shardNum)
 
                 api.rpcCall('chain_getHeader', [shardNum, null]).then((res) => {
@@ -197,7 +200,7 @@ const api = {
 
                         console.log('eraHash: ', res.data.result, eraHash)
 
-                        api.rpcCall('state_getNonce', [sender]).then((res) => {
+                        api.rpcCall('state_getNonce', [api.utils.bech32Encode(senderPublic)]).then((res) => {
                             let index = eval(res.data.result)
                             console.log('index: ', index)
 
@@ -209,21 +212,21 @@ const api = {
 
                             console.log('e: ', e)
 
-                            let signature = sign(senderBytes, secret, e)
-                            if (!verify(signature, e, senderBytes)) {
+                            let signature = sign(senderPublic, secret, e)
+                            if (!verify(signature, e, senderPublic)) {
                                 console.warn(`Signature is INVALID!`)
                                 reject('sign error')
                                 return
                             }
                             console.log('signature: ', signature)
 
-                            let senderAccountId = new AccountId(senderBytes)
+                            let senderAccountId = new AccountId(senderPublic)
                             console.log('senderAccountId: ', senderAccountId)
 
                             let signedData = encode(encode({
                                 _type: 'Transaction',
                                 version: 0x81,
-                                sender: senderBytes,
+                                sender: senderPublic,
                                 signature,
                                 index,
                                 era,
