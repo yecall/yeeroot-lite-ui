@@ -274,7 +274,7 @@ const api = {
         decodePowSeal(input) {
             input = input.replace('0x', '')
             let digestItemType = decode(hexToBytes(input.substr(0, 2)), 'u16');
-            if (digestItemType != 4) {
+            if (digestItemType != 4) {//consensus
                 return null;
             }
 
@@ -310,6 +310,34 @@ const api = {
                 timestamp,
                 workProofType,
                 workProof,
+            }
+        },
+        decodeFinalityTracker(input) {
+            input = input.replace('0x', '')
+            let digestItemType = decode(hexToBytes(input.substr(0, 2)), 'u16')
+            if (digestItemType != 0) {//log
+                return null
+            }
+
+            let vecLen = decode(hexToBytes(input.substr(2, 10)), 'Compact<u32>')
+            let compactLen = api.utils.compactLen(vecLen)
+
+            let module = decode(hexToBytes(input.substr(2 + compactLen * 2, 2)), 'u8');
+
+            if (module != 4) {//finality tracker module
+                return null
+            }
+
+            let log = decode(hexToBytes(input.substr(2 + compactLen * 2 + 2, 2)), 'u8');
+
+            if (log != 0) {//FinalizedBlockNumber
+                return null
+            }
+
+            let finalizedBlockNumber = decode(hexToBytes(input.substr(2 + compactLen * 2 + 2 + 2, 16)), 'u64');
+
+            return {
+                finalizedBlockNumber: finalizedBlockNumber,
             }
         }
 
