@@ -48,6 +48,11 @@
                                 <span class="hash" v-else>Not multi-mined</span>
                             </template>
                         </div>
+                        <div class="up">
+              <span>
+                FBN</span>
+                            <span class="hash">{{subItem.fbn}}</span>
+                        </div>
                         <div class="bottom">
               <span>
                 TIME</span>
@@ -61,7 +66,10 @@
             </ul>
         </section>
         <section>
-            <div class="block-tip center" style="padding-top:100px;">* MPMR: Short for "Multi proof merkle root". Blocks of different shards with the same MPMR were mined at the same time by a multi miner. </div>
+            <div class="block-tip center" style="padding-top:100px;">
+                <p>* MPMR: Short for "Multi proof merkle root". Blocks of different shards with the same MPMR were mined at the same time by a multi miner. </p>
+                <p>* FBN: Short for "Finalized block number". </p>
+            </div>
         </section>
         <section class="creat center">
             <div class="name">
@@ -184,84 +192,24 @@
                 ],
                 blocks: [
                     [
-                        {
-                            number: '',
-                            hash: '',
-                            mpmr: '',
-                            time: '',
-                        },
-                        {
-                            number: '',
-                            hash: '',
-                            mpmr: '',
-                            time: '',
-                        },
-                        {
-                            number: '',
-                            hash: '',
-                            mpmr: '',
-                            time: '',
-                        }
+                        {},
+                        {},
+                        {}
                     ],
                     [
-                        {
-                            number: '',
-                            hash: '',
-                            mpmr: '',
-                            time: '',
-                        },
-                        {
-                            number: '',
-                            hash: '',
-                            mpmr: '',
-                            time: '',
-                        },
-                        {
-                            number: '',
-                            hash: '',
-                            mpmr: '',
-                            time: '',
-                        }
+                        {},
+                        {},
+                        {}
                     ],
                     [
-                        {
-                            number: '',
-                            hash: '',
-                            mpmr: '',
-                            time: '',
-                        },
-                        {
-                            number: '',
-                            hash: '',
-                            mpmr: '',
-                            time: '',
-                        },
-                        {
-                            number: '',
-                            hash: '',
-                            mpmr: '',
-                            time: '',
-                        }
+                        {},
+                        {},
+                        {}
                     ],
                     [
-                        {
-                            number: '',
-                            hash: '',
-                            mpmr: '',
-                            time: '',
-                        },
-                        {
-                            number: '',
-                            hash: '',
-                            mpmr: '',
-                            time: '',
-                        },
-                        {
-                            number: '',
-                            hash: '',
-                            mpmr: '',
-                            time: '',
-                        }
+                        {},
+                        {},
+                        {}
                     ]
                 ],
                 address: '',
@@ -331,17 +279,20 @@
         },
         computed: {},
         created() {
-            //this.initDev()
+            this.initDevIfNeeded()
             this.initRuntime()
             this.repeat()
         },
         methods: {
-            initDev() {
-                this.queryAddress = 'tyee15c2cc2uj34w5jkfzxe4dndpnngprxe4nytaj9axmzf63ur4f8awq806lv6'
-                this.sendAddress = 'tyee15c2cc2uj34w5jkfzxe4dndpnngprxe4nytaj9axmzf63ur4f8awq806lv6'
-                this.sendPrivateKey = '0xf8eb0d437140e458ec6103965a4442f6b00e37943142017e9856f3310023ab530a0cc96e386686f95d2da0c7fa423ab7b84d5076b3ba6e7756e21aaafe9d3696'
-                this.dest = 'tyee1j2hkatdprkyz9mcxj3d244vhr6a6m3cf982hrlkm937wuqhmg9uqd879eg'
-                this.amount = 100000000
+            initDevIfNeeded() {
+                let devMode = window.location.href.search("localhost") != -1
+                if(devMode) {
+                    this.queryAddress = 'tyee1jfakj2rvqym79lmxcmjkraep6tn296deyspd9mkh467u4xgqt3cqkv6lyl'
+                    this.sendAddress = 'tyee1jfakj2rvqym79lmxcmjkraep6tn296deyspd9mkh467u4xgqt3cqkv6lyl'
+                    this.sendPrivateKey = 'a8666e483fd6c26dbb6deeec5afae765561ecc94df432f02920fc5d9cd4ae206ead577e5bc11215d4735cee89218e22f2d950a2a4667745ea1b5ea8b26bba5d6'
+                    this.dest = 'tyee15zphhp8wmtupkf3j8uz5y6eeamkmknfgs6rj0hsyt6m8ntpvndvsmz3h3w'
+                    this.amount = 100000000
+                }
             },
             initRuntime() {
                 runtime.initRuntime()
@@ -418,8 +369,10 @@
                             mpmrList.push({mpmr: i, count: mpmrMap[i]})
                         }
                         mpmrList.sort((a, b)=>{
-                            return a.count - b.count
+                            return b.count - a.count
                         })
+
+                        console.log(mpmrList)
 
                         mpmrMap = {}
                         for(let i in mpmrList){
@@ -460,19 +413,26 @@
                                 let number = res[i]['number']
                                 let hash = api.utils.getDisplayHash(res[i]['hash'])
                                 let seal = null
+                                let finalityTracker = null;
                                 if (res[i]['digest'] && res[i]['digest']['logs']) {
                                     for (let digestItem in res[i]['digest']['logs']) {
                                         digestItem = res[i]['digest']['logs'][digestItem]
-                                        seal = api.utils.decodePowSeal(digestItem)
+                                        if(seal == null) {
+                                            seal = api.utils.decodePowSeal(digestItem)
+                                        }
+                                        if(finalityTracker == null){
+                                            finalityTracker = api.utils.decodeFinalityTracker(digestItem)
+                                        }
                                     }
                                 }
                                 let mpmr = seal != null && seal.workProofType == 2 ? api.utils.getDisplayHash('0x' + seal.workProof.merkleRoot) : null
+                                let fbn = finalityTracker != null ? finalityTracker.finalizedBlockNumber : null
                                 let time = seal != null ? new Date(seal.timestamp) : null
-
                                 blocksOfShard.push({
                                     number,
                                     hash,
                                     mpmr,
+                                    fbn,
                                     time
                                 })
                             }
@@ -695,6 +655,14 @@
 
                         .mpmr-2 {
                             color: #0f9d70;
+                        }
+
+                        .mpmr-3 {
+                            color: #dac112;
+                        }
+
+                        .mpmr-4 {
+                            color: #20017d;
                         }
                     }
                 }
