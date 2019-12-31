@@ -12,6 +12,9 @@
                     <a href="https://www.yeeco.io/">
                         YeeCo Official
                     </a>
+                    <a href="https://pocnet.yeescan.org/">
+                        YeeCo Explorer
+                    </a>
                     <a href="https://github.com/yeeco/yeeroot/issues/new" class="last">
                         Feedback
                     </a>
@@ -33,7 +36,7 @@
                         <div class="up">
               <span>
                 NUMBER</span>
-                            <span class="balance">{{subItem.number}}</span>
+                            <span class="balance"><a :href="explorer + 'block/' + index + '-' + subItem.number ">{{subItem.number}}</a></span>
                         </div>
                         <div class="up">
               <span>
@@ -261,20 +264,8 @@
                         class: 'bitcointalk',
                         link: 'https://bitcointalk.org/index.php?topic=271453',
                     }
-                    // ,
-                    // {
-
-                    //   class: 'gplus',
-                    //   link: ''
-                    // }
-                    // ,
-                    // {
-                    //   class: 'chainnode',
-                    //   link: ''
-                    // }
-
-
-                ]
+                ],
+                explorer: "http://pocnet.yeescan.org/"
             };
         },
         computed: {},
@@ -638,6 +629,11 @@
                             font-size: 18px;
                             font-weight: bolder;
                             color: #444;
+
+                            a{
+                                color: #444;
+                                text-decoration: underline;
+                            }
                         }
 
                         .hash {
