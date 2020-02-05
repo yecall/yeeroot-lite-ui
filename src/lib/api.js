@@ -165,7 +165,23 @@ const api = {
             return shardNum
         },
         runInBalancesTransferCall(dest, value, calls, cb) {
-            let callBond = calls.balances.transfer(dest, value)
+            let callBond = calls.balances.transfer(dest, value);
+            callBond.tie((call, i) => {
+                console.log('call: ', call);
+                cb(call);
+                callBond.untie();
+            })
+        },
+        runInIssueAssetCall(name, supply, decimals, calls, cb) {
+            let callBond = calls.assets.issue(name, supply, decimals);
+            callBond.tie((call, i) => {
+                console.log('call: ', call);
+                cb(call);
+                callBond.untie();
+            })
+        },
+        runInAssetTransferCall(id, dest, value, calls, cb) {
+            let callBond = calls.assets.transfer(id, dest, value);
             callBond.tie((call, i) => {
                 console.log('call: ', call)
                 cb(call)
@@ -220,8 +236,8 @@ const api = {
                             }
                             console.log('signature: ', signature)
 
-                            let senderAccountId = new AccountId(senderPublic)
-                            console.log('senderAccountId: ', senderAccountId)
+                            // let senderAccountId = new AccountId(senderPublic)
+                            // console.log('senderAccountId: ', senderAccountId)
 
                             let signedData = encode(encode({
                                 _type: 'Transaction',

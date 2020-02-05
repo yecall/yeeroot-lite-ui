@@ -47,7 +47,7 @@
               <span>
                 MPMR</span>
                             <template v-if="subItem.number">
-                                <span :class="'hash mpmr-' + subItem.mpmrId"  v-if="subItem.mpmr">{{subItem.mpmr}}</span>
+                                <span :class="'hash mpmr-' + subItem.mpmrId" v-if="subItem.mpmr">{{subItem.mpmr}}</span>
                                 <span class="hash" v-else>Not multi-mined</span>
                             </template>
                         </div>
@@ -70,7 +70,8 @@
         </section>
         <section>
             <div class="block-tip center" style="padding-top:100px;">
-                <p>* MPMR: Short for "Multi proof merkle root". Blocks of different shards with the same MPMR were mined at the same time by a multi miner. </p>
+                <p>* MPMR: Short for "Multi proof merkle root". Blocks of different shards with the same MPMR were mined
+                    at the same time by a multi miner. </p>
                 <p>* FBN: Short for "Finalized block number". </p>
             </div>
         </section>
@@ -102,15 +103,16 @@
             </div>
             <div>This page will not store your private key, please back up it by yourself for further use.</div>
         </section>
+        <!-- check origin balance start -->
         <section class="creat center balance">
             <div class="name">
                 Check Balance
             </div>
             <div class="information">
                 <p class="title">
-          <span class="innertitle">
-            Address
-          </span>
+                  <span class="innertitle">
+                    Address
+                  </span>
                 </p>
                 <p class="address input">
                     <input class="input" type="text" v-model="queryAddress">
@@ -118,12 +120,13 @@
             </div>
             <p class="production"> Check the balance of the address ( 1 co is 0.00000001 YEE ) </p>
             <p class="balance">
-        <span class="result" v-if="balance!==''">
-          Balance is {{ balance}} co , Nonce is {{nonce}}, Shard num is {{shardNum}}
-        </span>
+                <span class="result" v-if="balance!==''">
+                  Balance is {{ balance}} co , Nonce is {{nonce}}, Shard num is {{shardNum}}
+                </span>
             </p>
             <button class="ceratedone" @click="check">Check</button>
         </section>
+        <!-- check origin balance end -->
         <section class="creat center transfer">
             <div class="name">
                 Transfer
@@ -171,6 +174,154 @@
             </p>
             <button class="ceratedone" @click="transfer">Transfer</button>
         </section>
+
+        <!-- Create Asset start -->
+        <section class="creat center create_asset">
+            <div class="name">
+                Create Asset
+            </div>
+            <div class=" information">
+                <p class="title">
+                  <span class="innertitle">
+                    Asset name
+                  </span>
+                </p>
+                <input class="input" type="text" v-model="assetName">
+                <p class="production">* Max size: 16 bytes.</p>
+            </div>
+            <div class=" information">
+                <p class="title">
+                  <span class="innertitle">
+                    Total Supply
+                  </span>
+                </p>
+                <input class="input" type="text" v-model="totalSupply">
+                <p class="production">* Total supply for this asset.</p>
+            </div>
+            <div class=" information">
+                <p class="title">
+                  <span class="innertitle">
+                    Decimals
+                  </span>
+                </p>
+                <input class="input" type="text" v-model="assetDecimals">
+                <p class="production">* Decimals for this asset.</p>
+            </div>
+            <div class=" information">
+                <p class="title">
+                  <span class="innertitle">
+                    Issuer Address
+                  </span>
+                </p>
+                <input class="input" type="text" v-model="assetIssuer">
+                <p class="production">* Please input issuer address.</p>
+            </div>
+            <div class=" information">
+                <p class="title">
+                    <span class="innertitle">Issuer Private Key</span>
+                </p>
+                <input class="input" type="text" v-model="assetIssuerPrvKey"/>
+                <p class="production">* Please input issuer private key.</p>
+            </div>
+            <p class="balance ">
+                <span class="result" v-if="showResult" :class="{success:success}">
+                  {{assetCreateResult}}
+                </span>
+            </p>
+            <button class="ceratedone" @click="new_asset">Create</button>
+        </section>
+        <!-- Create Asset end -->
+        <!-- Transfer Asset start -->
+        <section class="creat center transfer_asset">
+            <div class="name">
+                Asset Transfer
+            </div>
+            <div class=" information">
+                <p class="title">
+                  <span class="innertitle">
+                    Asset Id
+                  </span>
+                </p>
+                <input class="input" type="text" v-model="assetTransferId">
+            </div>
+            <div class=" information">
+                <p class="title">
+                  <span class="innertitle">
+                    From
+                  </span>
+                </p>
+                <input class="input" type="text" v-model="assetFrom">
+                <p class="production">Your wallet address</p>
+            </div>
+            <div class=" information">
+                <p class="title">
+                  <span class="innertitle">
+                    Private Key
+                  </span>
+                </p>
+                <input class="input" type="text" v-model="assetPrivateKey">
+                <p class="production">Your wallet private key</p>
+            </div>
+            <div class=" information">
+                <p class="title">
+                  <span class="innertitle">
+                    To
+                  </span>
+                </p>
+                <input class="input" type="text" v-model="assetTo">
+                <p class="production">The address which your will transfer to</p>
+            </div>
+            <div class=" information">
+                <p class="title">
+                  <span class="innertitle">
+                    Amount
+                  </span>
+                </p>
+                <input class="input" type="text" v-model="assetAmount">
+            </div>
+            <p class="balance ">
+                <span class="result" v-if="showResult" :class="{success:success}">
+                  {{assetTransferResult}}
+                </span>
+            </p>
+            <button class="ceratedone" @click="transfer_asset">Transfer</button>
+        </section>
+        <!-- Transfer Assets end -->
+        <!-- check asset balance start -->
+        <section class="creat center balance">
+            <div class="name">
+                Check Asset Balance
+            </div>
+            <div class="information">
+                <p class="title">
+                  <span class="innertitle">
+                    Address
+                  </span>
+                </p>
+                <p class="address input">
+                    <input class="input" type="text" v-model="queryAssetAddress">
+                </p>
+            </div>
+            <p class="production"> Check the balance of the address </p>
+            <div class="information">
+                <p class="title">
+                  <span class="innertitle">
+                    Asset Id
+                  </span>
+                </p>
+                <p class="address input">
+                    <input class="input" type="text" v-model="queryAssetId">
+                </p>
+            </div>
+            <p class="balance">
+                <span class="result" v-if="assetBalance!==''">
+                  Balance is {{ assetBalance}}, Shard num is {{assetShardNum}}
+                </span>
+            </p>
+            <button class="ceratedone" @click="check_asset">Check</button>
+        </section>
+        <!-- check asset balance end -->
+
         <section class="bottominfo">
             <div class="footer">
                 <a v-for="(item,index) in linkdata" :href="item.href" :class="item.class" :key="index"></a>
@@ -228,6 +379,26 @@
                 dest: '',
                 amount: '',
 
+                assetName: '',
+                assetId: '',
+                assetIssuer: '',
+                assetIssuerPrvKey: '',
+                assetDecimals: '',
+                totalSupply: '',
+                assetCreateResult: '',
+
+                assetTransferId: '',
+                assetFrom: '',
+                assetPrivateKey: '',
+                assetTo: '',
+                assetAmount: '',
+                assetTransferResult: '',
+
+                queryAssetAddress: '',
+                queryAssetId: '',
+                assetBalance: '',
+                assetShardNum: '',
+
                 showResult: false,
                 result: '',
                 success: false,
@@ -277,7 +448,7 @@
         methods: {
             initDevIfNeeded() {
                 let devMode = window.location.href.search("localhost") != -1
-                if(devMode) {
+                if (devMode) {
                     this.queryAddress = 'tyee1jfakj2rvqym79lmxcmjkraep6tn296deyspd9mkh467u4xgqt3cqkv6lyl'
                     this.sendAddress = 'tyee1jfakj2rvqym79lmxcmjkraep6tn296deyspd9mkh467u4xgqt3cqkv6lyl'
                     this.sendPrivateKey = 'a8666e483fd6c26dbb6deeec5afae765561ecc94df432f02920fc5d9cd4ae206ead577e5bc11215d4735cee89218e22f2d950a2a4667745ea1b5ea8b26bba5d6'
@@ -298,12 +469,12 @@
                     that.refreshRecentBlocks()
                 }, 20000)
             },
-            refreshRecentBlocks(){
+            refreshRecentBlocks() {
                 let that = this
                 let count = 4;
 
                 let ps = []
-                for(let i=0; i<count; i++){
+                for (let i = 0; i < count; i++) {
                     ps.push(that.refreshRecentBlocksPromise(i));
                 }
 
@@ -313,7 +484,7 @@
 
                         let blocks = []
 
-                        for(let i=0; i<count; i++){
+                        for (let i = 0; i < count; i++) {
                             let shardRes = res[i]
                             let blocksOfShard = [
                                 {
@@ -335,7 +506,7 @@
                                     time: '',
                                 }
                             ]
-                            if(!(shardRes.data && shardRes.data.error)) {
+                            if (!(shardRes.data && shardRes.data.error)) {
                                 blocksOfShard = shardRes
                             }
                             blocks.push(blocksOfShard)
@@ -343,46 +514,46 @@
 
                         //check same mpmr
                         let mpmrMap = {}
-                        for(let i in blocks){
-                            for(let j in blocks[i]){
+                        for (let i in blocks) {
+                            for (let j in blocks[i]) {
                                 let mpmr = blocks[i][j].mpmr
-                                if(mpmr){
-                                    if (mpmrMap[mpmr]){
+                                if (mpmr) {
+                                    if (mpmrMap[mpmr]) {
                                         mpmrMap[mpmr]++
-                                    }else{
+                                    } else {
                                         mpmrMap[mpmr] = 1
                                     }
                                 }
                             }
                         }
                         let mpmrList = []
-                        for(let i in mpmrMap){
+                        for (let i in mpmrMap) {
                             mpmrList.push({mpmr: i, count: mpmrMap[i]})
                         }
-                        mpmrList.sort((a, b)=>{
+                        mpmrList.sort((a, b) => {
                             return b.count - a.count
                         })
 
                         console.log(mpmrList)
 
                         mpmrMap = {}
-                        for(let i in mpmrList){
+                        for (let i in mpmrList) {
                             mpmrMap[mpmrList[i]['mpmr']] = i
                         }
 
                         console.log(mpmrMap)
 
-                        for(var i in blocks){
-                            for(var j in blocks[i]){
+                        for (var i in blocks) {
+                            for (var j in blocks[i]) {
                                 let mpmr = blocks[i][j].mpmr
-                                if(mpmr) {
+                                if (mpmr) {
                                     blocks[i][j]['mpmrId'] = mpmrMap[mpmr]
                                 }
                             }
                         }
                         console.log(blocks)
 
-                        for(let i=0; i<count; i++) {
+                        for (let i = 0; i < count; i++) {
                             that.blocks.splice(i, 1, blocks[i])
                         }
                     }
@@ -408,10 +579,10 @@
                                 if (res[i]['digest'] && res[i]['digest']['logs']) {
                                     for (let digestItem in res[i]['digest']['logs']) {
                                         digestItem = res[i]['digest']['logs'][digestItem]
-                                        if(seal == null) {
+                                        if (seal == null) {
                                             seal = api.utils.decodePowSeal(digestItem)
                                         }
-                                        if(finalityTracker == null){
+                                        if (finalityTracker == null) {
                                             finalityTracker = api.utils.decodeFinalityTracker(digestItem)
                                         }
                                     }
@@ -451,13 +622,13 @@
                 this.privateKey = '0x' + bytesToHex(api.utils.srKeypairToSecret(pair))
             },
             check() {
-                let that = this
-                that.balance = ''
+                let that = this;
+                that.balance = '';
 
                 Promise.all([api.rpcCall('state_getBalance', [that.queryAddress]), api.rpcCall('state_getNonce', [that.queryAddress])]).then(
                     (res) => {
-                        that.balance = eval(res[0].data.result)
-                        that.nonce = eval(res[1].data.result)
+                        that.balance = eval(res[0].data.result);
+                        that.nonce = eval(res[1].data.result);
                         that.shardNum = api.utils.getShardNum(api.utils.bech32Decode(that.queryAddress))
                     }).catch((res) => {
                     console.log(res)
@@ -512,7 +683,108 @@
                         })
                     }
                 )
-            }
+            },
+            // for asset
+            new_asset() {
+                let that = this;
+                that.assetCreateResult = '';
+                that.success = false;
+                that.showResult = false;
+
+                if (that.assetName == '' || that.assetDecimals == '' || that.assetIssuer == '' || that.totalSupply == '' || that.assetIssuerPrvKey == '') {
+                    that.assetCreateResult = 'Please fill all field.'
+                    that.showResult = true;
+                    return
+                }
+
+                if (!api.utils.isIntNum(that.assetDecimals)) {
+                    that.assetCreateResult = 'Decimals should be a integer'
+                    that.showResult = true
+                    return
+                }
+
+                let shardNum = api.utils.getShardNum(that.assetIssuer);
+                console.log('issuer sharding number: ', shardNum);
+                let issuerPublic = api.utils.bech32Decode(that.assetIssuer)
+                let secret = hexToBytes(that.assetIssuerPrvKey);
+
+                api.utils.runInIssueAssetCall(
+                    stringToBytes(that.assetName),
+                    that.totalSupply,
+                    that.assetDecimals,
+                    calls,
+                    (call) => {
+                        api.utils.composeTransaction(issuerPublic, secret, call).then(() => {
+                            that.assetCreateResult = 'Asset create successfully';
+                            that.showResult = true;
+                            that.success = true
+                        }).catch((res) => {
+                            that.assetCreateResult = 'Something is wrong' + res;
+                            that.showResult = true;
+                            that.success = false;
+                        })
+                    }
+                );
+            },
+            transfer_asset() {
+                let that = this;
+                that.assetTransferResult = '';
+                that.success = false;
+                that.showResult = false;
+
+                if (that.assetTransferId == '' || that.assetFrom == '' || that.assetTo == '' || that.assetAmount == '' || that.assetPrivateKey == '') {
+                    that.assetTransferResult = 'Please fill all field';
+                    that.showResult = true;
+                    return
+                }
+
+                if (!api.utils.isIntNum(that.assetAmount)) {
+                    that.assetTransferResult = 'Amount should be a integer';
+                    that.showResult = true;
+                    return
+                }
+                let shardNumFrom = api.utils.getShardNum(that.assetFrom);
+                let shardNumTo = api.utils.getShardNum(that.assetTo);
+                console.log('transfer asset from sharding: ', shardNumFrom);
+                console.log('transfer asset to sharding: ', shardNumTo);
+
+                let fromPublic = api.utils.bech32Decode(that.assetFrom);
+                let secret = hexToBytes(that.assetPrivateKey);
+                let toPublic = api.utils.bech32Decode(that.assetTo);
+
+                api.utils.runInAssetTransferCall(
+                    that.assetTransferId,
+                    toPublic,
+                    that.assetAmount,
+                    calls,
+                    (call) => {
+                        api.utils.composeTransaction(fromPublic, secret, call).then(() => {
+                            that.assetTransferResult = 'Asset transfer successfully';
+                            that.showResult = true;
+                            that.success = true;
+                        }).catch((res) => {
+                            that.assetTransferResult = 'Something is wrong';
+                            that.showResult = true;
+                            that.success = false;
+                        });
+                    }
+                )
+            },
+            check_asset(){
+                let that = this;
+                that.assetBalance = '';
+                that.assetShardNum = '';
+                Promise.all([api.rpcCall('state_getAssetBalance', [that.queryAssetAddress, parseInt(that.queryAssetId)])]).then(
+                    (res) => {
+                        that.assetBalance = eval(res[0].data.result);
+                        that.assetShardNum = api.utils.getShardNum(api.utils.bech32Decode(that.queryAssetAddress));
+                    }
+                ).catch(
+                    (res) => {
+                        console.log(res)
+                    }
+                );
+            },
         }
     }
 </script>
@@ -630,7 +902,7 @@
                             font-weight: bolder;
                             color: #444;
 
-                            a{
+                            a {
                                 color: #444;
                                 text-decoration: underline;
                             }
@@ -736,6 +1008,7 @@
 
                 &.privatekey {
                     height: 80px;
+
                     .privatekeytext {
                         width: 380px;
                         word-wrap: break-word;
@@ -766,6 +1039,7 @@
                 width: 200px;
 
                 // border-bottom: 1px solid #333;
+
                 &.success {
                     color: green;
                     // border-bottom: 1px solid green;
@@ -792,6 +1066,7 @@
             flex-direction row
             align-items center
             justify-content: space-around
+
             a {
                 display: inline-block;
                 width: 30px;
