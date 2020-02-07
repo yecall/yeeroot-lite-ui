@@ -34,35 +34,31 @@
                     </div>
                     <div v-for="(subItem, subIndex) in item" :class=" subIndex===item.length-1 ? 'part' : 'part line'">
                         <div class="up">
-              <span>
-                NUMBER</span>
+                            <span> NUMBER</span>
                             <span class="balance"><a :href="explorer + 'block/' + index + '-' + subItem.number ">{{subItem.number}}</a></span>
                         </div>
                         <div class="up">
-              <span>
-                HASH</span>
+                            <span>HASH</span>
                             <span class="hash">{{subItem.hash}}</span>
                         </div>
                         <div class="up">
-              <span>
-                MPMR</span>
+                            <span>MPMR</span>
                             <template v-if="subItem.number">
                                 <span :class="'hash mpmr-' + subItem.mpmrId" v-if="subItem.mpmr">{{subItem.mpmr}}</span>
                                 <span class="hash" v-else>Not multi-mined</span>
                             </template>
                         </div>
                         <div class="up">
-              <span>
-                FBN</span>
+                            <span>FBN</span>
                             <span class="hash">{{subItem.fbn}}</span>
                         </div>
                         <div class="bottom">
-              <span>
-                TIME</span>
+                            <span>TIME</span>
                             <span class="hash">
-                <vueDateFormat v-if="subItem.number" format="hh:mm:ss dd/MM" :time="subItem.time" type="fmt"
-                               :autoUpdate="false"></vueDateFormat>
-              </span>
+                                <vueDateFormat v-if="subItem.number" format="hh:mm:ss dd/MM" :time="subItem.time"
+                                               type="fmt"
+                                               :autoUpdate="false"></vueDateFormat>
+                          </span>
                         </div>
                     </div>
                 </li>
@@ -169,7 +165,7 @@
             </div>
             <p class="balance ">
         <span class="result" v-if="showResult" :class="{success:success}">
-          {{result}}
+          {{result}} <a :href="explorer + 'transfer/' + balanceTransferHash ">Go To Explorer</a>
         </span>
             </p>
             <button class="ceratedone" @click="transfer">Transfer</button>
@@ -224,8 +220,8 @@
                 <p class="production">* Please input issuer private key.</p>
             </div>
             <p class="balance ">
-                <span class="result" v-if="showResult" :class="{success:success}">
-                  {{assetCreateResult}}
+                <span class="result" v-if="showAssetIssueResult" :class="{success:success}">
+                  {{assetCreateResult}} <a :href="explorer + 'transfer/' + assetIssueHash ">Go To Explorer</a>
                 </span>
             </p>
             <button class="ceratedone" @click="new_asset">Create</button>
@@ -280,8 +276,8 @@
                 <input class="input" type="text" v-model="assetAmount">
             </div>
             <p class="balance ">
-                <span class="result" v-if="showResult" :class="{success:success}">
-                  {{assetTransferResult}}
+                <span class="result" v-if="showAssetTransferResult" :class="{success:success}">
+                  {{assetTransferResult}} <a :href="explorer + 'transfer/' + assetTransferHash ">Go To Explorer</a>
                 </span>
             </p>
             <button class="ceratedone" @click="transfer_asset">Transfer</button>
@@ -321,6 +317,39 @@
             <button class="ceratedone" @click="check_asset">Check</button>
         </section>
         <!-- check asset balance end -->
+        <!-- asset detail start -->
+        <section class="creat center balance">
+            <div class="name">
+                Asset Detail
+            </div>
+            <div class="information">
+                <p class="title">
+                  <span class="innertitle">
+                    Shard Number
+                  </span>
+                </p>
+                <p class="address input">
+                    <input class="input" type="text" v-model="detailAssetShard">
+                </p>
+            </div>
+            <div class="information">
+                <p class="title">
+                  <span class="innertitle">
+                    Asset Id
+                  </span>
+                </p>
+                <p class="address input">
+                    <input class="input" type="text" v-model="detailAssetId">
+                </p>
+            </div>
+            <p class="balance ">
+                <span class="result" v-if="showResult" :class="{success:success}">
+                  {{detailAssetResult}}
+                </span>
+            </p>
+            <button class="ceratedone" @click="asset_detail">Click</button>
+        </section>
+        <!-- asset detail end -->
 
         <section class="bottominfo">
             <div class="footer">
@@ -393,11 +422,21 @@
                 assetTo: '',
                 assetAmount: '',
                 assetTransferResult: '',
+                showAssetIssueResult: false,
+                showAssetTransferResult: false,
+
+                balanceTransferHash: '',
+                assetIssueHash: '',
+                assetTransferHash: '',
 
                 queryAssetAddress: '',
                 queryAssetId: '',
                 assetBalance: '',
                 assetShardNum: '',
+
+                detailAssetShard: '',
+                detailAssetId: '',
+                detailAssetResult: '',
 
                 showResult: false,
                 result: '',
@@ -453,7 +492,18 @@
                     this.sendAddress = 'tyee1jfakj2rvqym79lmxcmjkraep6tn296deyspd9mkh467u4xgqt3cqkv6lyl'
                     this.sendPrivateKey = 'a8666e483fd6c26dbb6deeec5afae765561ecc94df432f02920fc5d9cd4ae206ead577e5bc11215d4735cee89218e22f2d950a2a4667745ea1b5ea8b26bba5d6'
                     this.dest = 'tyee15zphhp8wmtupkf3j8uz5y6eeamkmknfgs6rj0hsyt6m8ntpvndvsmz3h3w'
-                    this.amount = 100000000
+                    this.amount = 1000
+
+                    this.assetFrom = 'tyee1jfakj2rvqym79lmxcmjkraep6tn296deyspd9mkh467u4xgqt3cqkv6lyl';
+                    this.assetTo = 'tyee15zphhp8wmtupkf3j8uz5y6eeamkmknfgs6rj0hsyt6m8ntpvndvsmz3h3w';
+                    this.assetPrivateKey = 'a8666e483fd6c26dbb6deeec5afae765561ecc94df432f02920fc5d9cd4ae206ead577e5bc11215d4735cee89218e22f2d950a2a4667745ea1b5ea8b26bba5d6';
+                    this.assetAmount = 1000;
+
+                    this.assetName = 'test-asset';
+                    this.assetIssuer = 'tyee1jfakj2rvqym79lmxcmjkraep6tn296deyspd9mkh467u4xgqt3cqkv6lyl';
+                    this.assetIssuerPrvKey = 'a8666e483fd6c26dbb6deeec5afae765561ecc94df432f02920fc5d9cd4ae206ead577e5bc11215d4735cee89218e22f2d950a2a4667745ea1b5ea8b26bba5d6';
+                    this.assetDecimals = 9;
+                    this.totalSupply = '1234567890';
                 }
             },
             initRuntime() {
@@ -672,7 +722,8 @@
                     that.amount,
                     calls,
                     (call) => {
-                        api.utils.composeTransaction(senderPublic, secret, call).then(() => {
+                        api.utils.composeTransaction(senderPublic, secret, call).then((result) => {
+                            that.balanceTransferHash = result.data.result;
                             that.result = 'Transfer successfully'
                             that.showResult = true
                             that.success = true
@@ -689,17 +740,17 @@
                 let that = this;
                 that.assetCreateResult = '';
                 that.success = false;
-                that.showResult = false;
+                that.showAssetIssueResult = false;
 
                 if (that.assetName == '' || that.assetDecimals == '' || that.assetIssuer == '' || that.totalSupply == '' || that.assetIssuerPrvKey == '') {
                     that.assetCreateResult = 'Please fill all field.'
-                    that.showResult = true;
+                    that.showAssetIssueResult = true;
                     return
                 }
 
                 if (!api.utils.isIntNum(that.assetDecimals)) {
                     that.assetCreateResult = 'Decimals should be a integer'
-                    that.showResult = true
+                    that.showAssetIssueResult = true
                     return
                 }
 
@@ -708,19 +759,21 @@
                 let issuerPublic = api.utils.bech32Decode(that.assetIssuer)
                 let secret = hexToBytes(that.assetIssuerPrvKey);
 
+                let name = stringToBytes(that.assetName);
                 api.utils.runInIssueAssetCall(
-                    stringToBytes(that.assetName),
+                    name,
                     that.totalSupply,
                     that.assetDecimals,
                     calls,
                     (call) => {
-                        api.utils.composeTransaction(issuerPublic, secret, call).then(() => {
+                        api.utils.composeTransaction(issuerPublic, secret, call).then((result) => {
+                            that.assetIssueHash = result.data.result;
                             that.assetCreateResult = 'Asset create successfully';
-                            that.showResult = true;
+                            that.showAssetIssueResult = true;
                             that.success = true
                         }).catch((res) => {
                             that.assetCreateResult = 'Something is wrong' + res;
-                            that.showResult = true;
+                            that.showAssetIssueResult = true;
                             that.success = false;
                         })
                     }
@@ -730,17 +783,23 @@
                 let that = this;
                 that.assetTransferResult = '';
                 that.success = false;
-                that.showResult = false;
+                that.showAssetTransferResult = false;
 
                 if (that.assetTransferId == '' || that.assetFrom == '' || that.assetTo == '' || that.assetAmount == '' || that.assetPrivateKey == '') {
                     that.assetTransferResult = 'Please fill all field';
-                    that.showResult = true;
+                    that.showAssetTransferResult = true;
+                    return
+                }
+
+                if (!api.utils.isIntNum(that.assetTransferId)) {
+                    that.assetTransferResult = 'Asset Id should be a integer';
+                    that.showAssetTransferResult = true;
                     return
                 }
 
                 if (!api.utils.isIntNum(that.assetAmount)) {
                     that.assetTransferResult = 'Amount should be a integer';
-                    that.showResult = true;
+                    that.showAssetTransferResult = true;
                     return
                 }
                 let shardNumFrom = api.utils.getShardNum(that.assetFrom);
@@ -758,26 +817,71 @@
                     that.assetAmount,
                     calls,
                     (call) => {
-                        api.utils.composeTransaction(fromPublic, secret, call).then(() => {
+                        api.utils.composeTransaction(fromPublic, secret, call).then((result) => {
+                            that.assetTransferHash = result.data.result;
                             that.assetTransferResult = 'Asset transfer successfully';
-                            that.showResult = true;
+                            that.showAssetTransferResult = true;
                             that.success = true;
                         }).catch((res) => {
                             that.assetTransferResult = 'Something is wrong';
-                            that.showResult = true;
+                            that.showAssetTransferResult = true;
                             that.success = false;
                         });
                     }
                 )
             },
-            check_asset(){
+            check_asset() {
                 let that = this;
                 that.assetBalance = '';
                 that.assetShardNum = '';
+                if (that.queryAssetAddress == '' || that.queryAssetId == '') {
+                    that.
+                    return;
+                }
+
                 Promise.all([api.rpcCall('state_getAssetBalance', [that.queryAssetAddress, parseInt(that.queryAssetId)])]).then(
                     (res) => {
                         that.assetBalance = eval(res[0].data.result);
                         that.assetShardNum = api.utils.getShardNum(api.utils.bech32Decode(that.queryAssetAddress));
+                    }
+                ).catch(
+                    (res) => {
+                        console.log(res)
+                    }
+                );
+            },
+            asset_detail() {
+                let that = this;
+                if (that.detailAssetShard == '' || that.detailAssetId == '') {
+                    that.detailAssetResult = 'Please fill all field';
+                    that.showResult = true;
+                    return
+                }
+                if (!api.utils.isIntNum(that.detailAssetShard)) {
+                    that.detailAssetResult = 'Shard Number should be a integer';
+                    that.showResult = true;
+                    return
+                }
+                if (!api.utils.isIntNum(that.detailAssetId)) {
+                    that.detailAssetResult = 'Asset Id should be a integer';
+                    that.showResult = true;
+                    return
+                }
+                let BytesToString = function (array){
+                    let str = "";
+                    for (let i = 0; i < array.length; i++) {
+                        str += String.fromCharCode(array[i]);
+                    }
+                    return str
+                };
+                Promise.all([api.rpcCall('state_getAssetDetail', [parseInt(that.detailAssetShard), parseInt(that.detailAssetId)])]).then(
+                    (res) => {
+                        let detail = eval(res[0].data.result);
+                        detail.Issuer = api.utils.bech32Encode(detail.Issuer);
+                        detail.Name = BytesToString(eval(detail.Name));
+                        detail.TotalSupply = eval(detail.TotalSupply);
+                        that.detailAssetResult = detail;
+                        that.showResult = true;
                     }
                 ).catch(
                     (res) => {
