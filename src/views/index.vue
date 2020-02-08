@@ -235,6 +235,15 @@
             <div class=" information">
                 <p class="title">
                   <span class="innertitle">
+                    Shard Code
+                  </span>
+                </p>
+                <input class="input" type="text" v-model="assetTransferShard">
+            </div>
+            <p class="production"> Asset shard code for which shard the asset issued. </p>
+            <div class=" information">
+                <p class="title">
+                  <span class="innertitle">
                     Asset Id
                   </span>
                 </p>
@@ -299,6 +308,17 @@
                 </p>
             </div>
             <p class="production"> Check the balance of the address </p>
+            <div class="information">
+                <p class="title">
+                  <span class="innertitle">
+                    Shard Code
+                  </span>
+                </p>
+                <p class="address input">
+                    <input class="input" type="text" v-model="queryAssetShard">
+                </p>
+            </div>
+            <p class="production"> Asset shard code for which shard the asset issued. </p>
             <div class="information">
                 <p class="title">
                   <span class="innertitle">
@@ -416,6 +436,7 @@
                 totalSupply: '',
                 assetCreateResult: '',
 
+                assetTransferShard: '',
                 assetTransferId: '',
                 assetFrom: '',
                 assetPrivateKey: '',
@@ -429,6 +450,7 @@
                 assetIssueHash: '',
                 assetTransferHash: '',
 
+                queryAssetShard: '',
                 queryAssetAddress: '',
                 queryAssetId: '',
                 assetBalance: '',
@@ -504,6 +526,9 @@
                     this.assetIssuerPrvKey = 'a8666e483fd6c26dbb6deeec5afae765561ecc94df432f02920fc5d9cd4ae206ead577e5bc11215d4735cee89218e22f2d950a2a4667745ea1b5ea8b26bba5d6';
                     this.assetDecimals = 9;
                     this.totalSupply = '1234567890';
+
+                    this.assetTransferShard = '5c70';
+                    this.queryAssetShard = '5c70';
                 }
             },
             initRuntime() {
@@ -785,7 +810,8 @@
                 that.success = false;
                 that.showAssetTransferResult = false;
 
-                if (that.assetTransferId == '' || that.assetFrom == '' || that.assetTo == '' || that.assetAmount == '' || that.assetPrivateKey == '') {
+                if (that.assetTransferShard == '' || that.assetTransferId == '' || that.assetFrom == '' || that.assetTo == '' ||
+                    that.assetAmount == '' || that.assetPrivateKey == '') {
                     that.assetTransferResult = 'Please fill all field';
                     that.showAssetTransferResult = true;
                     return
@@ -812,6 +838,7 @@
                 let toPublic = api.utils.bech32Decode(that.assetTo);
 
                 api.utils.runInAssetTransferCall(
+                    hexToBytes(that.assetTransferShard),
                     that.assetTransferId,
                     toPublic,
                     that.assetAmount,
@@ -834,19 +861,19 @@
                 let that = this;
                 that.assetBalance = '';
                 that.assetShardNum = '';
-                if (that.queryAssetAddress == '' || that.queryAssetId == '') {
-                    that.
+                if (that.queryAssetShard == '' || that.queryAssetAddress == '' || that.queryAssetId == '') {
                     return;
                 }
-
-                Promise.all([api.rpcCall('state_getAssetBalance', [that.queryAssetAddress, parseInt(that.queryAssetId)])]).then(
+                let shardCode = hexToBytes(that.queryAssetShard);
+                Promise.all([api.rpcCall('state_getAssetBalance', [that.queryAssetAddress, that.queryAssetShard, parseInt(that.queryAssetId)])]).then(
                     (res) => {
                         that.assetBalance = eval(res[0].data.result);
                         that.assetShardNum = api.utils.getShardNum(api.utils.bech32Decode(that.queryAssetAddress));
                     }
                 ).catch(
                     (res) => {
-                        console.log(res)
+                        console.log('check_asset failed:');
+                        console.log(res);
                     }
                 );
             },
@@ -880,11 +907,14 @@
                         detail.Issuer = api.utils.bech32Encode(detail.Issuer);
                         detail.Name = BytesToString(eval(detail.Name));
                         detail.TotalSupply = eval(detail.TotalSupply);
+                        detail.ShardCode = bytesToHex(eval(detail.ShardCode));
+
                         that.detailAssetResult = detail;
                         that.showResult = true;
                     }
                 ).catch(
                     (res) => {
+                        console.log('asset_detail failed:');
                         console.log(res)
                     }
                 );

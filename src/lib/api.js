@@ -180,11 +180,11 @@ const api = {
                 callBond.untie();
             })
         },
-        runInAssetTransferCall(id, dest, value, calls, cb) {
-            let callBond = calls.assets.transfer(id, dest, value);
+        runInAssetTransferCall(shard_code, id, dest, value, calls, cb) {
+            let callBond = calls.assets.transfer(shard_code, id, dest, value);
             callBond.tie((call, i) => {
-                console.log('call: ', call)
-                cb(call)
+                console.log('call: ', call);
+                cb(call);
                 callBond.untie()
             })
         },
