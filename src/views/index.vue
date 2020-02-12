@@ -904,10 +904,10 @@
                 Promise.all([api.rpcCall('state_getAssetDetail', [parseInt(that.detailAssetShard), parseInt(that.detailAssetId)])]).then(
                     (res) => {
                         let detail = eval(res[0].data.result);
-                        detail.Issuer = api.utils.bech32Encode(detail.Issuer);
-                        detail.Name = BytesToString(eval(detail.Name));
-                        detail.TotalSupply = eval(detail.TotalSupply);
-                        detail.ShardCode = bytesToHex(eval(detail.ShardCode));
+                        detail.issuer = api.utils.bech32Encode(detail.issuer);
+                        detail.name = BytesToString(eval(detail.name));
+                        detail.total_supply = eval(detail.total_supply);
+                        detail.shard_code = bytesToHex(eval(detail.shard_code));
 
                         that.detailAssetResult = detail;
                         that.showResult = true;
