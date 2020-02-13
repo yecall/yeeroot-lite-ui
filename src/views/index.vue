@@ -363,7 +363,7 @@
                 </p>
             </div>
             <p class="balance ">
-                <span class="result" v-if="showResult" :class="{success:success}">
+                <span class="result" v-if="showAssetDetailResult" :class="{success:success}">
                   {{detailAssetResult}}
                 </span>
             </p>
@@ -445,6 +445,7 @@
                 assetTransferResult: '',
                 showAssetIssueResult: false,
                 showAssetTransferResult: false,
+                showAssetDetailResult: false,
 
                 balanceTransferHash: '',
                 assetIssueHash: '',
@@ -881,17 +882,17 @@
                 let that = this;
                 if (that.detailAssetShard == '' || that.detailAssetId == '') {
                     that.detailAssetResult = 'Please fill all field';
-                    that.showResult = true;
+                    that.showAssetDetailResult = true;
                     return
                 }
                 if (!api.utils.isIntNum(that.detailAssetShard)) {
                     that.detailAssetResult = 'Shard Number should be a integer';
-                    that.showResult = true;
+                    that.showAssetDetailResult = true;
                     return
                 }
                 if (!api.utils.isIntNum(that.detailAssetId)) {
                     that.detailAssetResult = 'Asset Id should be a integer';
-                    that.showResult = true;
+                    that.showAssetDetailResult = true;
                     return
                 }
                 let BytesToString = function (array){
@@ -910,7 +911,7 @@
                         detail.shard_code = bytesToHex(eval(detail.shard_code));
 
                         that.detailAssetResult = detail;
-                        that.showResult = true;
+                        that.showAssetDetailResult = true;
                     }
                 ).catch(
                     (res) => {
