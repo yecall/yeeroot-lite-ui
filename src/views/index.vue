@@ -165,7 +165,7 @@
             </div>
             <p class="balance ">
         <span class="result" v-if="showResult" :class="{success:success}">
-          {{result}} <a :href="explorer + 'transfer/' + balanceTransferHash ">Go To Explorer</a>
+          {{result}} <a :href="explorer + 'transaction/' + balanceTransferHash ">Go To Explorer</a>
         </span>
             </p>
             <button class="ceratedone" @click="transfer">Transfer</button>
@@ -221,7 +221,7 @@
             </div>
             <p class="balance ">
                 <span class="result" v-if="showAssetIssueResult" :class="{success:success}">
-                  {{assetCreateResult}} <a :href="explorer + 'transfer/' + assetIssueHash ">Go To Explorer</a>
+                  {{assetCreateResult}} <a :href="explorer + 'transaction/' + assetIssueHash ">Go To Explorer</a>
                 </span>
             </p>
             <button class="ceratedone" @click="new_asset">Create</button>
@@ -286,7 +286,7 @@
             </div>
             <p class="balance ">
                 <span class="result" v-if="showAssetTransferResult" :class="{success:success}">
-                  {{assetTransferResult}} <a :href="explorer + 'transfer/' + assetTransferHash ">Go To Explorer</a>
+                  {{assetTransferResult}} <a :href="explorer + 'transaction/' + assetTransferHash ">Go To Explorer</a>
                 </span>
             </p>
             <button class="ceratedone" @click="transfer_asset">Transfer</button>
