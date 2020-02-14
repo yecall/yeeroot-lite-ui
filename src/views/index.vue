@@ -370,7 +370,39 @@
             <button class="ceratedone" @click="asset_detail">Click</button>
         </section>
         <!-- asset detail end -->
-
+        <!-- get block's event start -->
+        <section class="creat center balance">
+            <div class="name">
+                Block Events
+            </div>
+            <div class="information">
+                <p class="title">
+                  <span class="innertitle">
+                    Shard Number
+                  </span>
+                </p>
+                <p class="address input">
+                    <input class="input" type="text" v-model="blockEventsShard">
+                </p>
+            </div>
+            <div class="information">
+                <p class="title">
+                  <span class="innertitle">
+                    Block Number
+                  </span>
+                </p>
+                <p class="address input">
+                    <input class="input" type="text" v-model="blockEventsNumber">
+                </p>
+            </div>
+            <p class="balance ">
+                <span class="result" v-if="showEventsResult" :class="{success:success}">
+                  {{eventsResult}}
+                </span>
+            </p>
+            <button class="ceratedone" @click="block_events">Click</button>
+        </section>
+        <!-- get block's event start -->
         <section class="bottominfo">
             <div class="footer">
                 <a v-for="(item,index) in linkdata" :href="item.href" :class="item.class" :key="index"></a>
@@ -460,6 +492,11 @@
                 detailAssetShard: '',
                 detailAssetId: '',
                 detailAssetResult: '',
+
+                blockEventsShard: '',
+                blockEventsNumber: '',
+                showEventsResult: false,
+                eventsResult: '',
 
                 showResult: false,
                 result: '',
@@ -754,7 +791,7 @@
                             that.showResult = true
                             that.success = true
                         }).catch((res) => {
-                            that.result = 'Something is wrong'
+                            that.result = res
                             that.showResult = true
                             that.success = false
                         })
@@ -917,6 +954,34 @@
                     (res) => {
                         console.log('asset_detail failed:');
                         console.log(res)
+                    }
+                );
+            },
+            block_events() {
+                let that = this;
+                that.eventsResult = '';
+                if (that.blockEventsShard == '' || that.blockEventsNumber == '') {
+                    return;
+                }
+                Promise.all([api.rpcCall('chain_getBlockHash', [parseInt(that.blockEventsShard), parseInt(that.blockEventsNumber)])]).then(
+                    (res) => {
+                        let hash = res[0].data.result;
+                        Promise.all([api.rpcCall('state_getBlockEvents', [parseInt(that.blockEventsShard), hash])]).then(
+                            (res) => {
+                                that.showEventsResult = true;
+                                that.eventsResult = bytesToHex(eval(res[0].data.result));
+                            }
+                        ).catch(
+                            (res) => {
+                                console.log('block_events failed:');
+                                console.log(res);
+                            }
+                        );
+                    }
+                ).catch(
+                    (res) => {
+                        console.log('block_events failed:');
+                        console.log(res);
                     }
                 );
             },
