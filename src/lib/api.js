@@ -185,8 +185,16 @@ const api = {
             callBond.tie((call, i) => {
                 console.log('call: ', call);
                 cb(call);
-                callBond.untie()
+                callBond.untie();
             })
+        },
+        runInStorageTransferCall(data, calls, cb) {
+            let callBond = calls.storage.store(data);
+            callBond.tie((call, i) => {
+                console.log('storage-call: ', call);
+                cb(call);
+                callBond.untie();
+            });
         },
         composeTransaction(senderPublic, secret, call) {
 

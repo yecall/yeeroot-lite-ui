@@ -403,6 +403,51 @@
             <button class="ceratedone" @click="block_events">Click</button>
         </section>
         <!-- get block's event start -->
+        <!-- commit storage start -->
+        <section class="creat center balance">
+            <div class="name">
+                Storage
+            </div>
+            <div class="information">
+                <p class="title">
+                  <span class="innertitle">
+                    Account
+                  </span>
+                </p>
+                <p class="address input">
+                    <input class="input" type="text" v-model="storageAccountId">
+                </p>
+            </div>
+            <div class="information">
+                <p class="title">
+                  <span class="innertitle">
+                    Account Private Key
+                  </span>
+                </p>
+                <p class="address input">
+                    <input class="input" type="text" v-model="storageAccountPrvKey">
+                </p>
+            </div>
+            <div class="information">
+                <p class="title">
+                  <span class="innertitle">
+                    Data
+                  </span>
+                </p>
+                <p class="address input">
+                    <input class="input" type="text" v-model="storageData">
+                </p>
+            </div>
+            <p class="production">* Please input hex data.</p>
+            <p class="balance ">
+                <span class="result" v-if="showStorageResult" :class="{success:success}">
+                  {{storageResult}}
+                </span>
+            </p>
+            <button class="ceratedone" @click="transfer_storage">Click</button>
+        </section>
+        <!-- commit storage end -->
+
         <section class="bottominfo">
             <div class="footer">
                 <a v-for="(item,index) in linkdata" :href="item.href" :class="item.class" :key="index"></a>
@@ -497,6 +542,14 @@
                 blockEventsNumber: '',
                 showEventsResult: false,
                 eventsResult: '',
+
+                storageAccountId: '',
+                storageAccountPrvKey: '',
+                storageData: '',
+                showStorageResult: false,
+                storageResult: '',
+
+
 
                 showResult: false,
                 result: '',
@@ -982,6 +1035,36 @@
                     (res) => {
                         console.log('block_events failed:');
                         console.log(res);
+                    }
+                );
+            },
+            transfer_storage() {
+                let that = this;
+                that.success = false;
+                that.storageResult = '';
+                if (that.storageAccountId == '' || that.storageAccountPrvKey == '' || that.storageData == '') {
+                    that.showStorageResult = true;
+                    that.storageResult = 'Please fill all fields.';
+                    return;
+                }
+                let shard = api.utils.getShardNum(that.storageAccountId);
+                let pubKey = api.utils.bech32Decode(that.storageAccountId);
+                let secret = hexToBytes(that.storageAccountPrvKey);
+
+                api.utils.runInStorageTransferCall(
+                    hexToBytes(that.storageData),
+                    calls,
+                    (call) => {
+                        api.utils.composeTransaction(pubKey, secret, call).then((result) => {
+                            that.storageResult = 'Commit success.';
+                            that.showStorageResult = true;
+                            that.success = true;
+                        }).catch((res) => {
+                            that.storageResult = 'Something is wrong';
+                            that.showStorageResult = true;
+                            console.log('transfer storage failed:');
+                            console.log(res);
+                        });
                     }
                 );
             },
