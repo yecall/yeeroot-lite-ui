@@ -71,6 +71,7 @@
                 <p>* FBN: Short for "Finalized block number". </p>
             </div>
         </section>
+        <!-- create wallet strart -->
         <section class="creat center">
             <div class="name">
                 Create Wallet
@@ -99,6 +100,7 @@
             </div>
             <div>This page will not store your private key, please back up it by yourself for further use.</div>
         </section>
+        <!-- create wallet end -->
         <!-- check origin balance start -->
         <section class="creat center balance">
             <div class="name">

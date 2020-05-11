@@ -2,6 +2,8 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Meta from 'vue-meta';
 import index from '../views/index';
+import transfer from "../views/transfer";
+
 Vue.use(Router);
 Vue.use(Meta);
 let router = new Router({
@@ -11,6 +13,10 @@ let router = new Router({
         path: '/',
         component: index,
         name: 'index'
+    }, {
+        path: '/transfer',
+        component: transfer,
+        name: 'transfer'
     }
     ]
 });
