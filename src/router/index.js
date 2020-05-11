@@ -8,7 +8,7 @@ Vue.use(Router);
 Vue.use(Meta);
 let router = new Router({
     // 设置history以便开启预渲染
-    mode: 'history',
+    mode: 'hash',
     routes: [{
         path: '/',
         component: index,
