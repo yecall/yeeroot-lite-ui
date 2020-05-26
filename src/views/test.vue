@@ -7,11 +7,18 @@
             <div class=" information">
                 <p class="title">
                     <span class="innertitle">
+                        ShardNum
+                    </span>
+                </p>
+                <input class="input" type="text" v-model="shard" />
+            </div>
+            <div class=" information">
+                <p class="title">
+                    <span class="innertitle">
                         Height
                     </span>
                 </p>
                 <input class="input" type="text" v-model="height">
-                <p class="production">Your wallet address</p>
             </div>
             <button class="ceratedone" @click="getBlock">Click</button>
 
@@ -54,7 +61,8 @@
         components: {},
         data() {
             return {
-                height: '',
+                height: 0,
+                shard: 0,
 
                 showResult: false,
                 result: '',
@@ -84,10 +92,10 @@
                 that.showResult = false;
                 that.success = false;
 
-                Promise.all([api.rpcCall('chain_getBlockHash', [that.height])]).then(
+                Promise.all([api.rpcCall('chain_getBlockHash', [that.shard, that.height])]).then(
                     (res) => {
                         let hash = res[0].data.result;
-                        Promise.all([api.rpcCall('chain_getBlock', [hash])]).then(
+                        Promise.all([api.rpcCall('chain_getBlock', [that.shard, hash])]).then(
                             (res) => {
                                 that.result = eval(res[0].data.result);
                             }
@@ -112,6 +120,8 @@
                 that.powSealSuccess = false;
                 let str = that.powSealDetail;
                 let seal = api.utils.decodePowSeal(str);
+                let diff = Math.pow(2, 256) / parseInt(seal.pow_target);
+                console.log(diff);
                 that.powSealResult = JSON.stringify(seal);
             },
         },
