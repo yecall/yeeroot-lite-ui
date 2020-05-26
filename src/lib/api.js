@@ -305,6 +305,10 @@ const api = {
             let vecLen = decode(hexToBytes(input.substr(2 + 8, 10)), 'Compact<u32>');
             let compactLen = api.utils.compactLen(vecLen);
 
+            let authority_id = decode(hexToBytes(input.substr(2 + 8 + compactLen * 2, 64)), 'AccountId');
+
+            let pow_target = decode(hexToBytes(input.substr(2 + 8 + compactLen * 2 + 64, 64)), 'Hash');
+
             let timestamp = decode(hexToBytes(input.substr(2 + 8 + compactLen * 2 + 64 + 64, 16)), 'u64');
 
             let workProofType = decode(hexToBytes(input.substr(2 + 8 + compactLen * 2 + 64 + 64 + 16, 2)), 'u16');
@@ -331,6 +335,8 @@ const api = {
             return {
                 digestItemType,
                 vecLen,
+                authority_id,
+                pow_target,
                 timestamp,
                 workProofType,
                 workProof,
