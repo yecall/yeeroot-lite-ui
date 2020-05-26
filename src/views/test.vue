@@ -18,7 +18,7 @@
                         Height
                     </span>
                 </p>
-                <input class="input" type="text" v-model="height">
+                <input class="input" type="text" v-model="blockHeight">
             </div>
             <button class="ceratedone" @click="getBlock">Click</button>
 
@@ -61,7 +61,7 @@
         components: {},
         data() {
             return {
-                height: 0,
+                blockHeight: 0,
                 shard: 0,
 
                 showResult: false,
@@ -92,7 +92,7 @@
                 that.showResult = false;
                 that.success = false;
 
-                Promise.all([api.rpcCall('chain_getBlockHash', [that.shard, that.height])]).then(
+                Promise.all([api.rpcCall('chain_getBlockHash', [that.shard, that.blockHeight])]).then(
                     (res) => {
                         let hash = res[0].data.result;
                         Promise.all([api.rpcCall('chain_getBlock', [that.shard, hash])]).then(
