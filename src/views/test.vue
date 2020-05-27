@@ -92,12 +92,19 @@
                 that.showResult = false;
                 that.success = false;
 
-                Promise.all([api.rpcCall('chain_getBlockHash', [that.shard, that.blockHeight])]).then(
+                Promise.all([api.rpcCall('chain_getBlockHash', [parseInt(that.shard), parseInt(that.blockHeight)])]).then(
                     (res) => {
+                        that.showResult = true;
+                        that.success = true;
                         let hash = res[0].data.result;
-                        Promise.all([api.rpcCall('chain_getBlock', [that.shard, hash])]).then(
+                        if (hash == null) {
+                            that.result = "Can't get block hash";
+                            return
+                        }
+                        Promise.all([api.rpcCall('chain_getBlock', [parseInt(that.shard), hash])]).then(
                             (res) => {
                                 that.result = eval(res[0].data.result);
+                                that.result.justification = '';
                             }
                         ).catch(
                             (res) => {
@@ -120,9 +127,14 @@
                 that.powSealSuccess = false;
                 let str = that.powSealDetail;
                 let seal = api.utils.decodePowSeal(str);
-                let diff = Math.pow(2, 256) / parseInt(seal.pow_target);
-                console.log(diff);
-                that.powSealResult = JSON.stringify(seal);
+                let diff = Math.pow(2, 256) / parseInt(bytesToHex(seal.pow_target), 16);
+                seal.difficuty = diff;
+                seal.pow_target = bytesToHex(seal.pow_target);
+                seal.authority_id = bytesToHex(seal.authority_id);
+                seal.timestamp = new Date(seal.timestamp);
+                that.powSealResult = seal;
+                that.showPowSealResult = true;
+                that.powSealSuccess = true;
             },
         },
     }

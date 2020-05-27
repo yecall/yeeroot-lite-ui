@@ -41,7 +41,11 @@ const api = {
                     // data = $.param(params)
                     data = params
                 }
-                axios.post(url, data).then(
+                axios.post(url, data, {
+                    headers: {
+                        "Access-Control-Allow-Origin": "*"
+                    }
+                }).then(
                     res => {
                         if (res.data.error) {
                             reject(res)
@@ -307,7 +311,7 @@ const api = {
 
             let authority_id = decode(hexToBytes(input.substr(2 + 8 + compactLen * 2, 64)), 'AccountId');
 
-            let pow_target = decode(hexToBytes(input.substr(2 + 8 + compactLen * 2 + 64, 64)), 'Hash');
+            let pow_target = decode(hexToBytes(input.substr(2 + 8 + compactLen * 2 + 64, 64)), 'Hash').reverse();
 
             let timestamp = decode(hexToBytes(input.substr(2 + 8 + compactLen * 2 + 64 + 64, 16)), 'u64');
 
