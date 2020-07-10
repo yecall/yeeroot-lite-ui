@@ -325,10 +325,10 @@ const api = {
                 //do nothing
 
             } else if (workProofType == 2) {
-                let extraDataLen = decode(hexToBytes(input.substr(workProofOffset, 10)), 'Compact<u32>');
-                compactLen = api.utils.compactLen(extraDataLen);
+                let extraDataLen = 80;
+                // compactLen = api.utils.compactLen(extraDataLen);
 
-                let merkleRoot = input.substr(workProofOffset + compactLen * 2 + extraDataLen * 2, 64);
+                let merkleRoot = input.substr(workProofOffset + extraDataLen, 64);
 
                 workProof = {
                     extraDataLen,
