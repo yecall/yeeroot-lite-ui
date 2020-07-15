@@ -9,7 +9,7 @@ import bech32 from 'bech32';
 
 const api = {
     id: 0,
-    hrp: "tyee",
+    hrp: "yee",
     request(method, path, params) {
         let url = conf.apiBase + path
         params = params || {}
