@@ -23,9 +23,9 @@
     "vue-router": "^3.0.6"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.8.0",
+    "@vue/cli-plugin-babel": "^5.0.8",
     "@vue/cli-plugin-eslint": "^3.8.0",
-    "@vue/cli-service": "^3.8.0",
+    "@vue/cli-service": "^5.0.8",
     "axios": "^0.19.0",
     "babel-eslint": "^10.0.1",
     "better-scroll": "^1.15.2",
@@ -34,7 +34,7 @@
     "eslint-plugin-vue": "^5.0.0",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
-    "svg-sprite-loader": "^4.1.6",
+    "svg-sprite-loader": "^6.0.11",
     "svgo": "^1.2.2",
     "svgo-loader": "^2.2.1",
     "vue-svg-loader": "^0.12.0",
